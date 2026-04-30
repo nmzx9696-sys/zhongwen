@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>學中文 · Tiếng Trung Band A</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+:root {
+  --bg:#0f1117; --surface:#1a1d2e; --surface2:#232740; --surface3:#2d3154;
+  --accent:#6c63ff; --accent2:#ff6584; --accent3:#43e97b;
+  --gold:#f6c90e; --gold2:#ffda6a;
+  --text:#e8eaf6; --text2:#9194b3; --text3:#5c5f7a;
+  --green:#43e97b; --red:#ff6584; --blue:#56cffc;
+  --border:rgba(255,255,255,.07);
+  --card-h: 240px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 10%,rgba(108,99,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 85% 90%,rgba(255,101,132,.08) 0%,transparent 50%);z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;max-width:520px;margin:0 auto}
+
+header{text-align:center;padding:18px 16px 12px;border-bottom:1px solid var(--border);background:rgba(26,29,46,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
+header h1{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:clamp(22px,5.5vw,30px);font-weight:700;color:var(--gold);letter-spacing:3px;text-shadow:0 0 20px rgba(246,201,14,.3)}
+header p{font-size:12px;color:var(--text2);margin-top:4px;letter-spacing:.5px}
+
+/* STATS */
+#stats-bar{display:flex;justify-content:center;gap:6px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;background:var(--surface2);border-radius:10px;padding:6px 10px;border:1px solid var(--border)}
+.stat-num{font-size:20px;font-weight:800;color:var(--text)}
+.stat-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.stat-item.green .stat-num{color:var(--green)}.stat-item.red .stat-num{color:var(--red)}.stat-item.blue .stat-num{color:var(--blue)}
+
+/* TABS */
+#mode-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;gap:2px;padding:6px 8px}
+#mode-tabs::-webkit-scrollbar{display:none}
+.mode-tab{flex:1;min-width:72px;padding:8px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .25s;border:none;background:none;border-radius:10px;letter-spacing:.3px}
+.mode-tab.active{color:var(--accent);background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3)}
+.mode-tab .tab-icon{font-size:18px;display:block;margin-bottom:3px}
+
+/* FILTER */
+#filter-bar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;background:var(--surface);border-bottom:1px solid var(--border);scrollbar-width:none}
+#filter-bar::-webkit-scrollbar{display:none}
+.filter-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Nunito',sans-serif}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 12px rgba(108,99,255,.35)}
+
+/* MAIN */
+#main-content{padding:14px}
+
+/* PROGRESS BAR */
+.progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.progress-bar-bg{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s ease}
+.progress-text{font-size:12px;color:var(--text2);min-width:55px;text-align:right;font-weight:600}
+
+/* ===== FLASHCARD ===== */
+.card-scene{perspective:1200px;width:100%;max-width:460px;margin:0 auto 16px;height:var(--card-h)}
+.card-3d{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1);cursor:pointer}
+.card-3d.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.5);border:1px solid var(--border)}
+.card-front{background:linear-gradient(135deg,var(--surface2),var(--surface3))}
+.card-back{background:linear-gradient(135deg,#1a2a1a,#0d1f16);transform:rotateY(180deg);border-color:rgba(67,233,123,.2)}
+.card-hanzi{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:clamp(56px,15vw,86px);font-weight:400;color:var(--gold);text-shadow:0 0 30px rgba(246,201,14,.4),0 4px 16px rgba(0,0,0,.4);line-height:1;margin-bottom:10px}
+.card-hint{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:8px;background:var(--surface);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+.card-num{position:absolute;top:14px;right:16px;font-size:11px;color:var(--text3);font-weight:600;background:var(--surface);padding:2px 8px;border-radius:10px}
+.card-status-badge{position:absolute;top:14px;left:16px;font-size:10px;padding:3px 9px;border-radius:10px;font-weight:700}
+.card-status-badge.remembered{background:rgba(67,233,123,.15);color:var(--green);border:1px solid rgba(67,233,123,.35)}
+.card-status-badge.forgot{background:rgba(255,101,132,.15);color:var(--red);border:1px solid rgba(255,101,132,.35)}
+.card-pinyin{font-size:clamp(20px,5.5vw,28px);font-weight:700;color:var(--blue);margin-bottom:10px;letter-spacing:1px}
+.card-meaning{font-size:clamp(14px,3.8vw,18px);color:var(--text);text-align:center;line-height:1.55;margin-bottom:6px;font-weight:600}
+.card-hanviet{font-size:12px;color:var(--gold2);letter-spacing:.5px;font-style:italic;margin-top:4px;opacity:.8}
+
+/* CARD ACTIONS */
+.card-actions{display:flex;gap:10px;justify-content:center;margin-bottom:14px;max-width:460px;margin-left:auto;margin-right:auto}
+.action-btn{flex:1;padding:12px 8px;border-radius:14px;border:1px solid;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-remembered{background:rgba(67,233,123,.1);border-color:rgba(67,233,123,.35);color:var(--green)}
+.btn-remembered:hover,.btn-remembered.selected{background:rgba(67,233,123,.25);border-color:var(--green);transform:translateY(-2px);box-shadow:0 6px 16px rgba(67,233,123,.25)}
+.btn-forgot{background:rgba(255,101,132,.1);border-color:rgba(255,101,132,.35);color:var(--red)}
+.btn-forgot:hover,.btn-forgot.selected{background:rgba(255,101,132,.25);border-color:var(--red);transform:translateY(-2px);box-shadow:0 6px 16px rgba(255,101,132,.25)}
+
+/* NAV */
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:6px;max-width:460px;margin:0 auto 14px}
+.nav-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.nav-btn:hover:not(:disabled){background:var(--surface3);transform:scale(1.08);border-color:var(--accent)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.shuffle-btn{flex:1;padding:10px 6px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;text-align:center;font-weight:600}
+.shuffle-btn:hover{color:var(--text);border-color:var(--accent);background:rgba(108,99,255,.1)}
+.reset-all-btn{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,101,132,.3);background:rgba(255,101,132,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;white-space:nowrap;font-weight:700}
+.reset-all-btn:hover{background:rgba(255,101,132,.18)}
+
+/* ===== QUIZ ===== */
+#quiz-section,#listen-quiz-section{max-width:460px;margin:0 auto}
+
+/* Quiz flip card */
+.quiz-card-scene{perspective:1200px;width:100%;max-width:460px;margin:0 auto 16px;height:var(--card-h);cursor:pointer}
+.quiz-card-3d{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1)}
+.quiz-card-3d.quiz-flipped{transform:rotateY(180deg)}
+.quiz-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.5);border:1px solid var(--border)}
+.quiz-face-front{background:linear-gradient(135deg,var(--surface2),var(--surface3))}
+.quiz-face-back{background:linear-gradient(135deg,#1a2038,#0d1525);transform:rotateY(180deg);border-color:rgba(86,207,252,.2)}
+.quiz-hanzi-big{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:clamp(56px,14vw,82px);font-weight:400;color:var(--gold);text-shadow:0 0 30px rgba(246,201,14,.4);line-height:1;margin-bottom:8px}
+.quiz-flip-hint{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:8px;background:var(--surface);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+.quiz-back-pinyin{font-size:clamp(22px,6vw,32px);font-weight:700;color:var(--blue);margin-bottom:10px;letter-spacing:1px}
+.quiz-back-meaning{font-size:clamp(14px,4vw,18px);color:var(--text);text-align:center;line-height:1.55;font-weight:600}
+.quiz-back-hanviet{font-size:12px;color:var(--gold2);letter-spacing:.5px;font-style:italic;margin-top:6px;opacity:.8}
+/* Old quiz question - hidden now, replaced by card */
+.quiz-question{display:none}
+.quiz-prompt-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;text-align:center}
+.quiz-counter{font-size:11px;color:var(--text2);margin-top:6px;text-align:center;font-weight:600}
+.retry-badge{display:inline-block;background:rgba(255,101,132,.2);border:1px solid rgba(255,101,132,.4);color:var(--red);font-size:9px;padding:3px 9px;border-radius:10px;font-weight:800;letter-spacing:.5px;margin-bottom:6px}
+
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.quiz-option{padding:14px 10px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;transition:all .2s;text-align:center;line-height:1.45;font-family:'Nunito',sans-serif;font-weight:600}
+.quiz-option:hover:not(.disabled){border-color:var(--accent);background:rgba(108,99,255,.1);transform:translateY(-2px)}
+.quiz-option.correct{background:rgba(67,233,123,.2);border-color:var(--green);color:var(--green);font-weight:800}
+.quiz-option.wrong{background:rgba(255,101,132,.2);border-color:var(--red);color:var(--red)}
+.quiz-option.disabled{cursor:not-allowed}
+
+.quiz-result-msg{text-align:center;font-size:13px;font-weight:700;padding:9px 14px;border-radius:10px;margin-bottom:10px;opacity:0;transition:opacity .3s;min-height:34px}
+.quiz-result-msg.show{opacity:1}
+.quiz-result-msg.correct{color:var(--green);background:rgba(67,233,123,.1);border:1px solid rgba(67,233,123,.2)}
+.quiz-result-msg.wrong{color:var(--red);background:rgba(255,101,132,.1);border:1px solid rgba(255,101,132,.2)}
+
+/* Quiz action row after answer */
+.quiz-after-row{display:flex;gap:8px;margin-bottom:10px;display:none}
+.qa-btn{flex:1;padding:10px 8px;border-radius:12px;border:1px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px}
+.qa-mark-ok{background:rgba(67,233,123,.1);border-color:rgba(67,233,123,.35);color:var(--green)}
+.qa-mark-ok:hover{background:rgba(67,233,123,.25)}
+.qa-mark-wrong{background:rgba(255,101,132,.1);border-color:rgba(255,101,132,.35);color:var(--red)}
+.qa-mark-wrong:hover{background:rgba(255,101,132,.25)}
+.qa-next{background:rgba(108,99,255,.12);border-color:rgba(108,99,255,.4);color:var(--accent)}
+.qa-next:hover{background:rgba(108,99,255,.25)}
+
+/* Quiz complete screen */
+.quiz-complete{text-align:center;padding:36px 20px}
+.quiz-complete .big-emoji{font-size:60px;margin-bottom:14px}
+.quiz-complete h2{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:26px;color:var(--gold);margin-bottom:10px}
+.quiz-complete p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:22px}
+.quiz-complete-btns{display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto}
+.qc-btn{padding:14px;border-radius:14px;border:1px solid;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s}
+.qc-btn-primary{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent)}
+.qc-btn-primary:hover{background:rgba(108,99,255,.3)}
+.qc-btn-secondary{background:var(--surface2);border-color:var(--border);color:var(--text2)}
+.qc-btn-secondary:hover{color:var(--text)}
+
+/* ===== LISTEN QUIZ ===== */
+.listen-quiz-card{text-align:center;margin-bottom:16px;padding:24px 20px;background:var(--surface2);border-radius:20px;border:1px solid rgba(86,207,252,.2);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.lq-prompt{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;font-weight:700}
+.lq-speak-btn{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#3a7bd5,#1a3a6e);border:2px solid rgba(86,207,252,.4);color:#fff;font-size:28px;cursor:pointer;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(86,207,252,.25)}
+.lq-speak-btn:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(86,207,252,.45)}
+.lq-speak-btn.speaking{animation:pulse 1s infinite;background:linear-gradient(135deg,var(--red),#8b1a3a)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.lq-hint{font-size:11px;color:rgba(86,207,252,.45);letter-spacing:1px}
+.lq-counter{font-size:11px;color:var(--text2);margin-top:6px;font-weight:600}
+
+/* ===== LISTEN (study) ===== */
+#listen-section{max-width:460px;margin:0 auto;text-align:center}
+.listen-card{background:var(--surface2);border:1px solid rgba(86,207,252,.2);border-radius:20px;padding:28px 20px;margin-bottom:14px;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.listen-hanzi{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:clamp(52px,14vw,80px);font-weight:400;color:var(--blue);text-shadow:0 0 28px rgba(86,207,252,.35);margin-bottom:12px}
+.listen-pinyin{font-size:22px;color:var(--gold);font-weight:700;margin-bottom:6px}
+.listen-meaning{font-size:15px;color:var(--text);opacity:0;transition:opacity .5s;min-height:22px;font-weight:600}
+.listen-meaning.visible{opacity:1}
+.speak-btn{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3a7bd5,#1a3a6e);border:2px solid rgba(86,207,252,.4);color:#fff;font-size:28px;cursor:pointer;margin:14px auto;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(86,207,252,.25)}
+.speak-btn:hover{transform:scale(1.1)}
+.speak-btn.speaking{animation:pulse 1s infinite;background:linear-gradient(135deg,var(--red),#8b1a3a)}
+.reveal-btn{padding:10px 24px;border-radius:22px;border:1px solid rgba(86,207,252,.35);background:rgba(86,207,252,.08);color:var(--blue);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;margin-bottom:14px;font-weight:700}
+.reveal-btn:hover{background:rgba(86,207,252,.2)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-state .big{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:13px;line-height:1.7;font-weight:500}
+.empty-action{margin-top:16px;padding:10px 24px;border-radius:12px;border:1px solid var(--accent);background:rgba(108,99,255,.12);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:22px;font-size:13px;font-weight:700;transition:transform .3s;z-index:100;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* CONFIRM MODAL */
+#confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+#confirm-modal.show{display:flex}
+.confirm-box{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.confirm-box h3{font-family:'DFKai-SB','標楷體','BiauKai',serif;font-size:20px;color:var(--gold);margin-bottom:10px}
+.confirm-box p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:22px}
+.confirm-btns{display:flex;gap:10px}
+.cb-cancel{flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface3);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif}
+.cb-ok{flex:1;padding:12px;border-radius:12px;border:1px solid var(--red);background:rgba(255,101,132,.15);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif}
+
+@media(max-width:360px){.quiz-options{grid-template-columns:1fr}.quiz-option{padding:11px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <h1>學中文 · Tiếng Trung</h1>
+  <p>1274 từ vựng · Band A · HSK Cơ Bản</p>
+</header>
+
+<div id="stats-bar">
+  <div class="stat-item"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Tổng từ</span></div>
+  <div class="stat-item green"><span class="stat-num" id="stat-remembered">0</span><span class="stat-label">Đã nhớ</span></div>
+  <div class="stat-item red"><span class="stat-num" id="stat-forgot">0</span><span class="stat-label">Chưa nhớ</span></div>
+  <div class="stat-item blue"><span class="stat-num" id="stat-unseen">0</span><span class="stat-label">Chưa học</span></div>
+  <div class="stat-item"><span class="stat-num" id="stat-acc">0%</span><span class="stat-label">Độ chính xác</span></div>
+</div>
+
+<div id="mode-tabs">
+  <button class="mode-tab active" onclick="switchMode('flashcard')" id="tab-flashcard"><span class="tab-icon">🃏</span>Thẻ lật</button>
+  <button class="mode-tab" onclick="switchMode('quiz')" id="tab-quiz"><span class="tab-icon">📝</span>Trắc nghiệm</button>
+  <button class="mode-tab" onclick="switchMode('listen-quiz')" id="tab-listen-quiz"><span class="tab-icon">🎧</span>Nghe TN</button>
+  <button class="mode-tab" onclick="switchMode('listen')" id="tab-listen"><span class="tab-icon">🔊</span>Luyện nghe</button>
+</div>
+
+<div id="filter-bar">
+  <button class="filter-btn active" onclick="setFilter('active')" id="filter-active">📚 Đang học</button>
+  <button class="filter-btn" onclick="setFilter('unlearned')" id="filter-unlearned">🆕 Chưa học</button>
+  <button class="filter-btn" onclick="setFilter('wrong')" id="filter-wrong">❌ Đã sai</button>
+  <button class="filter-btn" onclick="setFilter('remembered')" id="filter-remembered">✅ Đã nhớ</button>
+  <button class="filter-btn" onclick="setFilter('all')" id="filter-all">📖 Tất cả</button>
+</div>
+
+<div id="main-content">
+
+<!-- ===== FLASHCARD ===== -->
+<div id="flashcard-section">
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="fc-progress-fill" style="width:0%"></div></div>
+    <span class="progress-text" id="fc-progress-text">0 / 0</span>
+  </div>
+  <div class="card-scene" onclick="flipCard()">
+    <div class="card-3d" id="card3d">
+      <div class="card-face card-front">
+        <span class="card-num" id="card-num"></span>
+        <span class="card-status-badge" id="card-badge" style="display:none"></span>
+        <div class="card-hanzi" id="card-hanzi">啊</div>
+        <div class="card-hint">👆 Nhấn để xem nghĩa</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-pinyin" id="card-pinyin"></div>
+        <div class="card-meaning" id="card-meaning"></div>
+        <div class="card-hanviet" id="card-hanviet"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card-actions">
+    <button class="action-btn btn-forgot" id="btn-fc-forgot" onclick="markCard(false)">✗ Chưa nhớ</button>
+    <button class="action-btn btn-remembered" id="btn-fc-remembered" onclick="markCard(true)">✓ Đã nhớ</button>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" id="btn-prev" onclick="navigate(-1)">◀</button>
+    <button class="shuffle-btn" onclick="shuffleDeck()">🔀 Xáo bài</button>
+    <button class="shuffle-btn" onclick="resetCurrentDeck()">🔄 Từ đầu</button>
+    <button class="reset-all-btn" onclick="confirmResetAll()">⚠️ Làm lại</button>
+    <button class="nav-btn" id="btn-next" onclick="navigate(1)">▶</button>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="quiz-section" style="display:none">
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="qz-progress-fill" style="width:0%"></div></div>
+    <span class="progress-text" id="qz-progress-text">0 / 0</span>
+  </div>
+  <div id="quiz-inner">
+    <!-- Flip card for quiz -->
+    <div class="quiz-card-scene" onclick="flipQuizCard()">
+      <div class="quiz-card-3d" id="quizCard3d">
+        <div class="quiz-face quiz-face-front">
+          <span id="quiz-retry-badge-card" style="display:none" class="retry-badge">🔁 Ôn lại</span>
+          <div class="quiz-hanzi-big" id="quiz-hanzi-card"></div>
+          <div class="quiz-flip-hint">👆 Nhấn để xem pinyin & nghĩa</div>
+          <div class="quiz-counter" id="quiz-counter"></div>
+        </div>
+        <div class="quiz-face quiz-face-back">
+          <div class="quiz-back-pinyin" id="quiz-pinyin-card"></div>
+          <div class="quiz-back-meaning" id="quiz-meaning-card"></div>
+          <div class="quiz-back-hanviet" id="quiz-hanviet-card"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-prompt-label">Chọn nghĩa đúng của từ trên</div>
+    <div style="margin-bottom:8px"></div>
+    <div class="quiz-options" id="quiz-options"></div>
+    <div class="quiz-result-msg" id="quiz-result"></div>
+    <div class="quiz-after-row" id="quiz-after-row">
+      <button class="qa-btn qa-mark-wrong" onclick="quizMarkStatus(false)">✗ Đánh dấu sai</button>
+      <button class="qa-btn qa-mark-ok" onclick="quizMarkStatus(true)">✓ Đánh dấu nhớ</button>
+      <button class="qa-btn qa-next" onclick="nextQuiz()">Tiếp →</button>
+    </div>
+  </div>
+  <div id="quiz-complete" style="display:none" class="quiz-complete">
+    <div class="big-emoji">🏆</div>
+    <h2>Hoàn thành!</h2>
+    <p id="quiz-complete-msg"></p>
+    <div class="quiz-complete-btns">
+      <button class="qc-btn qc-btn-primary" onclick="restartQuiz()">🔁 Làm lại bộ này</button>
+      <button class="qc-btn qc-btn-secondary" onclick="confirmResetAll()">⚠️ Xóa tiến độ & làm lại</button>
+    </div>
+  </div>
+  <div class="nav-row" style="margin-top:4px">
+    <button class="shuffle-btn" onclick="shuffleDeck()">🔀 Xáo bài</button>
+    <button class="reset-all-btn" onclick="confirmResetAll()">⚠️ Làm lại từ đầu</button>
+  </div>
+</div>
+
+<!-- ===== LISTEN QUIZ ===== -->
+<div id="listen-quiz-section" style="display:none">
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="lq-progress-fill" style="width:0%"></div></div>
+    <span class="progress-text" id="lq-progress-text">0 / 0</span>
+  </div>
+  <div id="listen-quiz-inner">
+    <div class="listen-quiz-card">
+      <div class="lq-prompt">Nghe và chọn nghĩa đúng</div>
+      <div id="lq-retry-badge" class="retry-badge" style="display:none">🔁 Ôn lại</div>
+      <button class="lq-speak-btn" id="lq-speak-btn" onclick="lqSpeak()">🔊</button>
+      <div class="lq-hint">Nhấn để nghe · Nhấn nhiều lần để nghe lại</div>
+      <div class="lq-counter" id="lq-counter"></div>
+    </div>
+    <div class="quiz-options" id="lq-options"></div>
+    <div class="quiz-result-msg" id="lq-result"></div>
+    <div class="quiz-after-row" id="lq-after-row">
+      <button class="qa-btn qa-mark-wrong" onclick="lqMarkStatus(false)">✗ Đánh dấu sai</button>
+      <button class="qa-btn qa-mark-ok" onclick="lqMarkStatus(true)">✓ Đánh dấu nhớ</button>
+      <button class="qa-btn qa-next" onclick="nextLQ()">Tiếp →</button>
+    </div>
+  </div>
+  <div id="lq-complete" style="display:none" class="quiz-complete">
+    <div class="big-emoji">🎧</div>
+    <h2>Hoàn thành!</h2>
+    <p id="lq-complete-msg"></p>
+    <div class="quiz-complete-btns">
+      <button class="qc-btn qc-btn-primary" onclick="restartLQ()">🔁 Làm lại bộ này</button>
+      <button class="qc-btn qc-btn-secondary" onclick="confirmResetAll()">⚠️ Xóa tiến độ & làm lại</button>
+    </div>
+  </div>
+  <div class="nav-row" style="margin-top:4px">
+    <button class="shuffle-btn" onclick="shuffleDeck()">🔀 Xáo bài</button>
+    <button class="reset-all-btn" onclick="confirmResetAll()">⚠️ Làm lại từ đầu</button>
+  </div>
+</div>
+
+<!-- ===== LISTEN STUDY ===== -->
+<div id="listen-section" style="display:none">
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="ls-progress-fill" style="width:0%"></div></div>
+    <span class="progress-text" id="ls-progress-text">0 / 0</span>
+  </div>
+  <div class="listen-card">
+    <div class="listen-hanzi" id="listen-hanzi"></div>
+    <div class="listen-pinyin" id="listen-pinyin"></div>
+    <div class="listen-meaning" id="listen-meaning"></div>
+  </div>
+  <button class="speak-btn" id="speak-btn" onclick="speakCurrent()">🔊</button>
+  <button class="reveal-btn" onclick="revealListen()">👁 Hiện nghĩa</button>
+  <div class="card-actions">
+    <button class="action-btn btn-forgot" onclick="markCard(false)">✗ Chưa nhớ</button>
+    <button class="action-btn btn-remembered" onclick="markCard(true)">✓ Đã nhớ</button>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="navigate(-1)">◀</button>
+    <button class="shuffle-btn" onclick="shuffleDeck()">🔀 Xáo bài</button>
+    <button class="shuffle-btn" onclick="resetCurrentDeck()">🔄 Từ đầu</button>
+    <button class="reset-all-btn" onclick="confirmResetAll()">⚠️ Làm lại</button>
+    <button class="nav-btn" onclick="navigate(1)">▶</button>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+</div><!-- /app -->
+
+<div id="toast"></div>
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <h3>⚠️ Xác nhận</h3>
+    <p>Bạn muốn xóa toàn bộ tiến độ và làm lại từ đầu?<br>Hành động này không thể hoàn tác.</p>
+    <div class="confirm-btns">
+      <button class="cb-cancel" onclick="closeConfirm()">Hủy</button>
+      <button class="cb-ok" onclick="doResetAll()">Xóa & Làm lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const VOCAB = [{"stt":1,"hantu":"啊","pinyin":"a","nghia":"A, Chà, À"},{"stt":2,"hantu":"愛","pinyin":"ài","nghia":"Yêu, Thích"},{"stt":3,"hantu":"矮","pinyin":"ǎi","nghia":"Lùn, Thấp Lùn, Thấp"},{"stt":4,"hantu":"安靜","pinyin":"ānjìng","nghia":"Tĩnh Lặng, Yên Lặng"},{"stt":5,"hantu":"安排","pinyin":"ānpái","nghia":"Sắp Xếp"},{"stt":6,"hantu":"安全","pinyin":"ānquán","nghia":"An Toàn"},{"stt":7,"hantu":"安全帽","pinyin":"ānquán mào","nghia":"Mũ Bảo Hiểm"},{"stt":8,"hantu":"安全門","pinyin":"ānquánmén","nghia":"Cửa An Toàn"},{"stt":9,"hantu":"阿姨","pinyin":"āyí","nghia":"Dì, Cô, Mợ, Thím, Bác Gái"},{"stt":10,"hantu":"吧","pinyin":"ba","nghia":"Nào, Nhé, Chứ, Thôi, Đi (Dùng Ở Cuối Câu"},{"stt":11,"hantu":"把","pinyin":"bǎ","nghia":"Cầm, Nắm"},{"stt":12,"hantu":"八","pinyin":"bā","nghia":"Bát: Số 8"},{"stt":13,"hantu":"爸爸","pinyin":"bàba","nghia":"Ba, Bố"},{"stt":14,"hantu":"百","pinyin":"bǎi","nghia":"Bách: Số 100"},{"stt":15,"hantu":"百貨公司","pinyin":"bǎihuògōngsī","nghia":"Công Ty Bách Hóa, Trung Tâm Thương Mại"},{"stt":16,"hantu":"白色","pinyin":"báisè","nghia":"Màu Trắng"},{"stt":17,"hantu":"半","pinyin":"bàn","nghia":"Một Nửa"},{"stt":18,"hantu":"辦","pinyin":"bàn","nghia":"Làm, Lo Liệu, Xử Lý"},{"stt":19,"hantu":"搬","pinyin":"Bān","nghia":"Chuyển, Xê Dịch, Dời Chỗ, Chuyển Chỗ"},{"stt":20,"hantu":"班","pinyin":"bān","nghia":"Lớp Học, Ca, Buổi Làm, Ban, Tuyến, Chuyến"},{"stt":21,"hantu":"辦法","pinyin":"bànfǎ","nghia":"Phương Pháp, Biện Pháp"},{"stt":22,"hantu":"棒","pinyin":"bàng","nghia":"Tuyệt, Quá Tốt, Khoẻ, Vâm, Đô"},{"stt":23,"hantu":"幫","pinyin":"Bāng","nghia":"Giúp Đỡ"},{"stt":24,"hantu":"幫忙","pinyin":"bāngmáng","nghia":"Giúp Đỡ"},{"stt":25,"hantu":"辦公室","pinyin":"bàngōngshì","nghia":"Văn Phòng"},{"stt":26,"hantu":"棒球","pinyin":"bàngqiú","nghia":"Bóng Chày"},{"stt":27,"hantu":"幫助","pinyin":"bāngzhù","nghia":"Giúp Đỡ"},{"stt":28,"hantu":"搬家","pinyin":"bānjiā","nghia":"Chuyển Nhà"},{"stt":29,"hantu":"半夜","pinyin":"bànyè","nghia":"Nửa Đêm"},{"stt":30,"hantu":"抱","pinyin":"bào","nghia":"Bế, Bồng, Ẳm, Ôm"},{"stt":31,"hantu":"飽","pinyin":"bǎo","nghia":"Đầy"},{"stt":32,"hantu":"包","pinyin":"bāo","nghia":"Cái Túi, Bao, Gói, Đùm, Bọc, Quấn"},{"stt":33,"hantu":"報告","pinyin":"bàogào","nghia":"Báo Cáo"},{"stt":34,"hantu":"包含","pinyin":"bāohán","nghia":"Bao Hàm, Bao Gồm"},{"stt":35,"hantu":"保護","pinyin":"bǎohù","nghia":"Bảo Vệ, Bảo Hộ"},{"stt":36,"hantu":"保健","pinyin":"bǎojiàn","nghia":"Chăm Sóc Sức Khỏe"},{"stt":37,"hantu":"抱歉","pinyin":"bàoqiàn","nghia":"Xin Lỗi"},{"stt":38,"hantu":"保養品","pinyin":"bǎoyǎng pǐn","nghia":"Sản Phẩm Chăm Sóc"},{"stt":39,"hantu":"報紙","pinyin":"bàozhǐ","nghia":"Báo, Giấy Báo, Giấy In Báo"},{"stt":40,"hantu":"包子","pinyin":"bāozi","nghia":"Bánh Bao"},{"stt":41,"hantu":"被","pinyin":"bèi","nghia":"Bị, Được, Chăn Mềm"},{"stt":42,"hantu":"北","pinyin":"běi","nghia":"Bắc,"},{"stt":43,"hantu":"杯","pinyin":"bēi","nghia":"Cố, Ly"},{"stt":44,"hantu":"北邊","pinyin":"běi biān","nghia":"Hướng Bắc"},{"stt":45,"hantu":"北京","pinyin":"běijīng","nghia":"Bắc Kinh"},{"stt":46,"hantu":"北京烤鴨","pinyin":"běijīng kǎoyā","nghia":"Vịt Bắc Kinh"},{"stt":47,"hantu":"杯子","pinyin":"bēizi","nghia":"Cốc, Ly"},{"stt":48,"hantu":"本","pinyin":"běn","nghia":"Sách"},{"stt":49,"hantu":"本來","pinyin":"běnlái","nghia":"Ban Đầu"},{"stt":50,"hantu":"避","pinyin":"bì","nghia":"Phòng Ngừa, Ngừa, Phòng Chống"},{"stt":51,"hantu":"筆","pinyin":"Bǐ","nghia":"Bút"},{"stt":52,"hantu":"比","pinyin":"bǐ","nghia":"Tỷ: So Sánh, So Đo"},{"stt":53,"hantu":"必經","pinyin":"Bì jīng","nghia":"Phải Trải Qua"},{"stt":54,"hantu":"變","pinyin":"biàn","nghia":"Thay Đổi"},{"stt":55,"hantu":"遍","pinyin":"biàn","nghia":"Lần, Lượt, Đợt"},{"stt":56,"hantu":"邊","pinyin":"biān","nghia":"Biên, Cạnh, Biên , Đường Viền"},{"stt":57,"hantu":"錶","pinyin":"biăo","nghia":"Đồng Hồ"},{"stt":58,"hantu":"表演","pinyin":"biǎoyǎn","nghia":"Biểu Diễn"},{"stt":59,"hantu":"別","pinyin":"bié","nghia":"Biệt, Khác, Ngoài Ra, Lạ"},{"stt":60,"hantu":"別的","pinyin":"bié de","nghia":"Khác, Cái Khác"},{"stt":61,"hantu":"別人","pinyin":"biérén","nghia":"Người Khác"},{"stt":62,"hantu":"比方說","pinyin":"Bǐfāng shuō","nghia":"Ví Dụ, Chẳng Hạn Như"},{"stt":63,"hantu":"比較","pinyin":"bǐjiào","nghia":"Tương Đối, Khá"},{"stt":64,"hantu":"避免","pinyin":"Bìmiǎn","nghia":"Tránh Xa, Trành Khỏi"},{"stt":65,"hantu":"病","pinyin":"bìng","nghia":"Bệnh, Ốm, Đau, Bịnh"},{"stt":66,"hantu":"病房","pinyin":"bìngfáng","nghia":"Phòng Bệnh"},{"stt":67,"hantu":"餅乾","pinyin":"bǐnggān","nghia":"Bánh Quy"},{"stt":68,"hantu":"冰淇淋","pinyin":"bīngqílín","nghia":"Kem"},{"stt":69,"hantu":"病人","pinyin":"bìngrén","nghia":"Bệnh Nhân"},{"stt":70,"hantu":"冰箱","pinyin":"bīngxiāng","nghia":"Tủ Lạnh"},{"stt":71,"hantu":"比賽","pinyin":"bǐsài","nghia":"Cuộc Thi"},{"stt":72,"hantu":"必须","pinyin":"bìxū","nghia":"Phải, Nhất Định Phải"},{"stt":73,"hantu":"畢業","pinyin":"bìyè","nghia":"Tốt Nghiệp"},{"stt":74,"hantu":"鼻子","pinyin":"bízi","nghia":"Mũi"},{"stt":75,"hantu":"伯伯","pinyin":"bóbo","nghia":"Bá Bá, Bác"},{"stt":76,"hantu":"博物館","pinyin":"bówùguǎn","nghia":"Bảo Tàng"},{"stt":77,"hantu":"補","pinyin":"bǔ","nghia":"Tẩm Bổ, Bổ, Bồi Dưỡng, Bồi Bổ, Bổ Sung"},{"stt":78,"hantu":"不客氣","pinyin":"bù kèqì","nghia":"Đừng Khách Sáo"},{"stt":79,"hantu":"不難","pinyin":"bù nán","nghia":"Không Khó"},{"stt":80,"hantu":"不限","pinyin":"bù xiàn","nghia":"Không Hạn Chế"},{"stt":81,"hantu":"不","pinyin":"bú; bù","nghia":"Bất, Không"},{"stt":82,"hantu":"不必","pinyin":"bùbì","nghia":"Không Cần, Khỏi, Khỏi Phải, Không Đáng"},{"stt":83,"hantu":"不錯","pinyin":"bùcuò","nghia":"Không Tồi, Tốt"},{"stt":84,"hantu":"不但","pinyin":"bùdàn","nghia":"Không Chỉ"},{"stt":85,"hantu":"不斷","pinyin":"bùduàn","nghia":"Liên Tục, Không Ngừng"},{"stt":86,"hantu":"部分","pinyin":"Bùfèn","nghia":"Bộ Phận"},{"stt":87,"hantu":"不管","pinyin":"bùguǎn","nghia":"Mặc Dù, Cho Dù"},{"stt":88,"hantu":"不過","pinyin":"bùguò","nghia":"Nhưng Mà"},{"stt":89,"hantu":"不好意思","pinyin":"bùhǎoyìsi","nghia":"Thực Ngại Quá"},{"stt":90,"hantu":"不及","pinyin":"bùjí","nghia":"Không Kịp, Chưa Kịp"},{"stt":91,"hantu":"不如","pinyin":"bùrú","nghia":"Không Bằng, Thua Kém Hơn"},{"stt":92,"hantu":"不同","pinyin":"bùtóng","nghia":"Khác Biệt"},{"stt":93,"hantu":"不一定","pinyin":"bùyídìng","nghia":"Không Nhất Định"},{"stt":94,"hantu":"不用","pinyin":"búyòng","nghia":"Không Cần"},{"stt":95,"hantu":"擦","pinyin":"cā","nghia":"Chùi, Cọ Xát, Ma Sát, Chà, Cạ, Xoa, Đánh, Quẹt"},{"stt":96,"hantu":"才","pinyin":"cái","nghia":"Tài Năng, Mới, Vừa Mới"},{"stt":97,"hantu":"菜","pinyin":"cài","nghia":"Rau, Món Ăn, Thức Ăn, Đồ Ăn"},{"stt":98,"hantu":"猜","pinyin":"cāi","nghia":"Đoán, Giải Đoán, Suy Đoán, Phỏng Đoán"},{"stt":99,"hantu":"菜單","pinyin":"càidān","nghia":"Thực Đơn"},{"stt":100,"hantu":"參觀","pinyin":"cānguān","nghia":"Tham Quan"},{"stt":101,"hantu":"參加","pinyin":"Cānjiā","nghia":"Tham Gia"},{"stt":102,"hantu":"參考","pinyin":"cānkǎo","nghia":"Tham Khảo"},{"stt":103,"hantu":"餐廳","pinyin":"cāntīng","nghia":"Căng Tin, Bếp Ăn"},{"stt":104,"hantu":"餐桌","pinyin":"Cānzhuō","nghia":"Bàn Ăn"},{"stt":105,"hantu":"草","pinyin":"cǎo","nghia":"Cỏ"},{"stt":106,"hantu":"草地","pinyin":"căodì","nghia":"Bãi Cỏ, Đồng Cỏ"},{"stt":107,"hantu":"測驗","pinyin":"cèyàn","nghia":"Bài Kiểm Tra"},{"stt":108,"hantu":"茶","pinyin":"Chá","nghia":"Chè"},{"stt":109,"hantu":"差不多","pinyin":"chàbùduō","nghia":"Hầu Hết, Gần Như"},{"stt":110,"hantu":"常","pinyin":"cháng","nghia":"Thường"},{"stt":111,"hantu":"場","pinyin":"chǎng","nghia":"Trận, Cuộc, Đợt, Nơi, Bãi, Trường"},{"stt":112,"hantu":"長褲","pinyin":"cháng kù","nghia":"Quần Dài"},{"stt":113,"hantu":"常常","pinyin":"chángcháng","nghia":"Thường, Thường Thường, Hay"},{"stt":114,"hantu":"唱歌","pinyin":"Chànggē","nghia":"Hát, Ca Hát"},{"stt":115,"hantu":"吵","pinyin":"chǎo","nghia":"Ồn Ào, Ầm Ĩ"},{"stt":116,"hantu":"超級市場","pinyin":"chāojíshìchăng","nghia":"Đại Siêu Thị"},{"stt":117,"hantu":"超市","pinyin":"chāoshì","nghia":"Siêu Thị"},{"stt":118,"hantu":"程度","pinyin":"chéngdù","nghia":"Trình Độ"},{"stt":119,"hantu":"成功","pinyin":"chénggōng","nghia":"Thành Công"},{"stt":120,"hantu":"成績","pinyin":"chéngjī","nghia":"Thành Tích, Điểm Học"},{"stt":121,"hantu":"成為","pinyin":"chéngwéi","nghia":"Trở Nên"},{"stt":122,"hantu":"襯衫","pinyin":"chènshān","nghia":"Áo Sơ Mi"},{"stt":123,"hantu":"車站","pinyin":"chēzhàn","nghia":"Ga Tàu"},{"stt":124,"hantu":"池","pinyin":"Chí","nghia":"Hồ Bơi, Ao, Hồ"},{"stt":125,"hantu":"吃","pinyin":"Chī","nghia":"Ăn"},{"stt":126,"hantu":"吃飽","pinyin":"chībăo","nghia":"Ăn No"},{"stt":127,"hantu":"遲到","pinyin":"chídào","nghia":"Bị Trễ, Đến Muộn"},{"stt":128,"hantu":"吃飯","pinyin":"Chīfàn","nghia":"Ăn Cơm"},{"stt":129,"hantu":"重修","pinyin":"chóngxiū","nghia":"Làm Lại"},{"stt":130,"hantu":"出","pinyin":"chū","nghia":"Xuất: Ra, Xuất, Đưa Ra"},{"stt":131,"hantu":"船","pinyin":"chuán","nghia":"Thuyền, Tàu Thủy"},{"stt":132,"hantu":"穿","pinyin":"Chuān","nghia":"Mặc, Đi, Mang, Đeo"},{"stt":133,"hantu":"床","pinyin":"chuáng","nghia":"Giường"},{"stt":134,"hantu":"窗戶","pinyin":"chuānghù","nghia":"Cửa Sổ"},{"stt":135,"hantu":"傳統","pinyin":"chuántǒng","nghia":"Truyền Thống"},{"stt":136,"hantu":"傳真","pinyin":"chuánzhēn","nghia":"Fax"},{"stt":137,"hantu":"出發","pinyin":"chūfā","nghia":"Xuất Phát"},{"stt":138,"hantu":"廚房","pinyin":"chúfáng","nghia":"Phòng Bếp"},{"stt":139,"hantu":"出國","pinyin":"chūguó","nghia":"Đi Nước Ngoài"},{"stt":140,"hantu":"吹","pinyin":"chuī","nghia":"Thổi, Thổi, Hà Hơi, Hỉ"},{"stt":141,"hantu":"初級","pinyin":"chūjí","nghia":"Sơ Đẳng"},{"stt":142,"hantu":"出來","pinyin":"chūlái","nghia":"Xuất Hiện, Đi Ra"},{"stt":143,"hantu":"處理","pinyin":"Chǔlǐ","nghia":"Xử Lý, Đối Phó, Giải Quyết"},{"stt":144,"hantu":"春節","pinyin":"chūnjié","nghia":"Mùa Thu"},{"stt":145,"hantu":"春天","pinyin":"chūntiān","nghia":"Mùa Xuân"},{"stt":146,"hantu":"出去","pinyin":"chūqù","nghia":"Ra, Ra Ngoài (Từ Trong Ra Ngoài)"},{"stt":147,"hantu":"出現","pinyin":"chūxiàn","nghia":"Xuất Hiện"},{"stt":148,"hantu":"次","pinyin":"cì","nghia":"Thứ Tự, Thứ Bậc,Lần, Lượt, Chuyến"},{"stt":149,"hantu":"此外","pinyin":"Cǐwài","nghia":"Ngoài Ra, Bên Cạnh Đó, Hơn Nữa, Vả Lại"},{"stt":150,"hantu":"從","pinyin":"cóng","nghia":"Từ…."},{"stt":151,"hantu":"聰明","pinyin":"cōngmíng","nghia":"Thông Minh"},{"stt":152,"hantu":"從前","pinyin":"cóngqián","nghia":"Tù Trước, Từ Trước Đó"},{"stt":153,"hantu":"錯","pinyin":"cuò","nghia":"Sai"},{"stt":154,"hantu":"大","pinyin":"dà","nghia":"To , Lớn"},{"stt":155,"hantu":"打","pinyin":"dǎ","nghia":"Đánh, Đập, Gõ"},{"stt":156,"hantu":"搭","pinyin":"dā","nghia":"Bắc, Dựng, Làm, Khiêng, Khênh, Nhấc"},{"stt":157,"hantu":"答案","pinyin":"Dá àn","nghia":"Đáp Án, Trả Lời"},{"stt":158,"hantu":"打電話","pinyin":"Dǎ diànhuà","nghia":"Gọi Điện Thoại"},{"stt":159,"hantu":"大概","pinyin":"dàgài","nghia":"Đại Khái, Có Lẽ, Có Thể, Khoảng"},{"stt":160,"hantu":"袋","pinyin":"Dài","nghia":"Túi, Bao, Gói"},{"stt":161,"hantu":"帶","pinyin":"dài","nghia":"Đeo, Mang, Cầm"},{"stt":162,"hantu":"戴","pinyin":"dài","nghia":"Đội, Đeo, Cài, Mang"},{"stt":163,"hantu":"袋子","pinyin":"dàizi","nghia":"Túi, Cái Túi"},{"stt":164,"hantu":"大家","pinyin":"Dàjiā","nghia":"Mọi Người"},{"stt":165,"hantu":"打開","pinyin":"dǎkāi","nghia":"Mở"},{"stt":166,"hantu":"但","pinyin":"Dàn","nghia":"Lại, Mà Lại, Nhưng Mà"},{"stt":167,"hantu":"蛋","pinyin":"dàn","nghia":"Trứng"},{"stt":168,"hantu":"當","pinyin":"dāng","nghia":"Đương, Trong Khi"},{"stt":169,"hantu":"蛋糕","pinyin":"dàngāo","nghia":"Bánh Ngọt"},{"stt":170,"hantu":"當然","pinyin":"dāngrán","nghia":"Đương Nhiên"},{"stt":171,"hantu":"但是","pinyin":"dànshì","nghia":"Nhưng Mà, Tuy Nhiên"},{"stt":172,"hantu":"擔心","pinyin":"dānxīn","nghia":"Lo Lắng"},{"stt":173,"hantu":"到","pinyin":"dào","nghia":"Đến"},{"stt":174,"hantu":"道","pinyin":"dào","nghia":"Đường, Con Đường, Đạo Đức, Chí Hướng, Lý Lẽ"},{"stt":175,"hantu":"倒","pinyin":"dào","nghia":"Ngã, Lộn, Ngược Lại"},{"stt":176,"hantu":"刀叉","pinyin":"dāochā","nghia":"Dao Nĩa"},{"stt":177,"hantu":"到處","pinyin":"dàochù","nghia":"Mọi Nơi"},{"stt":178,"hantu":"到底","pinyin":"dàodǐ","nghia":"Tóm Lại, Rốt Cuộc, Nói Cho Cùng, Thì Ra, Vẫn Là"},{"stt":179,"hantu":"道理","pinyin":"dàolǐ","nghia":"Đạo Lý, Có Lý"},{"stt":180,"hantu":"打球","pinyin":"Dǎqiú","nghia":"Chơi Bóng"},{"stt":181,"hantu":"打掃","pinyin":"dǎsǎo","nghia":"Lau Dọn"},{"stt":182,"hantu":"大聲","pinyin":"dàshēng","nghia":"Ầm Ĩ"},{"stt":183,"hantu":"打算","pinyin":"Dǎsuàn","nghia":"Dự Kiến, Dự Định"},{"stt":184,"hantu":"大學","pinyin":"dàxué","nghia":"Đại Học"},{"stt":185,"hantu":"大衣","pinyin":"dàyī","nghia":"Áo Choàng"},{"stt":186,"hantu":"的","pinyin":"de","nghia":"Trợ Từ, Dùng Sau Định Ngữ"},{"stt":187,"hantu":"得","pinyin":"de","nghia":"Được, Có Thể"},{"stt":188,"hantu":"得到","pinyin":"dédào","nghia":"Đạt Được, Được, Nhận Được"},{"stt":189,"hantu":"德國","pinyin":"déguó","nghia":"Nước Đức"},{"stt":190,"hantu":"等","pinyin":"děng","nghia":"Chờ Đợi"},{"stt":191,"hantu":"燈","pinyin":"dēng","nghia":"Đèn"},{"stt":192,"hantu":"地","pinyin":"dì","nghia":"Địa: Đất, Trái Đất, Địa Cầu, Mặt Đất, Vỏ Quả Đất"},{"stt":193,"hantu":"第","pinyin":"dì","nghia":"Thứ Tự"},{"stt":194,"hantu":"低","pinyin":"dī","nghia":"Thấp"},{"stt":195,"hantu":"地上","pinyin":"dì shàng","nghia":"Trên Mặt Đất"},{"stt":196,"hantu":"店","pinyin":"Diàn","nghia":"Tiệm, Quán"},{"stt":198,"hantu":"典","pinyin":"diǎn","nghia":"Kinh Điển, Điển"},{"stt":199,"hantu":"點","pinyin":"diǎn","nghia":"Điểm: Giọt, Hạt, Chấm, Điểm"},{"stt":200,"hantu":"點菜","pinyin":"diǎn cài","nghia":"Gọi Món"},{"stt":201,"hantu":"點鐘","pinyin":"Diǎn zhōng","nghia":"Giờ, Đúng Giờ"},{"stt":202,"hantu":"電燈","pinyin":"diàndēng","nghia":"Bóng Đèn"},{"stt":203,"hantu":"電話","pinyin":"diànhuà","nghia":"Điện Thoại"},{"stt":204,"hantu":"電腦","pinyin":"Diànnǎo","nghia":"Máy Tính"},{"stt":205,"hantu":"電視","pinyin":"Diànshì","nghia":"Ti Vi"},{"stt":206,"hantu":"電梯","pinyin":"diàntī","nghia":"Thang Máy"},{"stt":207,"hantu":"點心","pinyin":"diǎnxīn","nghia":"Món Tráng Miệng, Điểm Tâm"},{"stt":208,"hantu":"電影","pinyin":"diànyǐng","nghia":"Điện Ảnh, Phim"},{"stt":209,"hantu":"電影院","pinyin":"diànyǐngyuàn","nghia":"Rạp Chiếu Phim"},{"stt":210,"hantu":"掉","pinyin":"diào","nghia":"Rơi, Rớt"},{"stt":211,"hantu":"調查","pinyin":"Diàochá","nghia":"Điều Tra"},{"stt":212,"hantu":"弟弟","pinyin":"dìdì","nghia":"Em Trai"},{"stt":213,"hantu":"地方","pinyin":"dìfāng","nghia":"Địa Điểm"},{"stt":214,"hantu":"訂","pinyin":"dìng","nghia":"Đặt"},{"stt":215,"hantu":"頂","pinyin":"dǐng","nghia":"Đỉnh, Đứng Đầu, Đội Lên, Cái (Lượng Từ)"},{"stt":216,"hantu":"地圖","pinyin":"dìtú","nghia":"Bản Đồ"},{"stt":217,"hantu":"丟","pinyin":"diū","nghia":"Mất"},{"stt":218,"hantu":"丟掉","pinyin":"diūdiào","nghia":"Vứt Đi"},{"stt":219,"hantu":"動","pinyin":"dòng","nghia":"Di Chuyển, Động"},{"stt":220,"hantu":"懂","pinyin":"dǒng","nghia":"Hiểu"},{"stt":221,"hantu":"東","pinyin":"dōng","nghia":"Đông, Họ Đông, Hướng Đông"},{"stt":222,"hantu":"東邊","pinyin":"dōngbiān","nghia":"Hướng Đông"},{"stt":223,"hantu":"東部","pinyin":"dōngbù","nghia":"Phía Đông"},{"stt":224,"hantu":"冬天","pinyin":"dōngtiān","nghia":"Mùa Đông"},{"stt":225,"hantu":"動物","pinyin":"dòngwù","nghia":"Động Vật"},{"stt":226,"hantu":"動物園","pinyin":"dòngwùyuán","nghia":"Vườn Bách Thú, Công Viên Thú"},{"stt":227,"hantu":"東西","pinyin":"Dōngxī","nghia":"Đồ Vật, Cái Gì Đó"},{"stt":228,"hantu":"都","pinyin":"dōu","nghia":"Đều, Toàn"},{"stt":229,"hantu":"讀","pinyin":"dú","nghia":"Đọc, Đi Học, Đến Trường"},{"stt":230,"hantu":"段","pinyin":"Duàn","nghia":"Đoạn"},{"stt":231,"hantu":"短","pinyin":"Duǎn","nghia":"Ngắn"},{"stt":232,"hantu":"短文","pinyin":"Duǎnwén","nghia":"Đoạn Văn, Đoạn Thoại"},{"stt":233,"hantu":"堆","pinyin":"duī","nghia":"Đống"},{"stt":234,"hantu":"對","pinyin":"dùi","nghia":"Phải, Đối Với,.."},{"stt":235,"hantu":"對不起","pinyin":"duìbùqǐ","nghia":"Xin Lỗi"},{"stt":236,"hantu":"對方","pinyin":"duìfāng","nghia":"Đối Phương, Ngươi Kia"},{"stt":237,"hantu":"對面","pinyin":"duìmiàn","nghia":"Đối Diện"},{"stt":238,"hantu":"朵","pinyin":"duǒ","nghia":"Đoá, Đám (Lượng Từ)"},{"stt":239,"hantu":"多","pinyin":"duō","nghia":"Nhiều"},{"stt":240,"hantu":"多久","pinyin":"duōjiǔ","nghia":"Bao Lâu"},{"stt":241,"hantu":"多少","pinyin":"Duōshǎo","nghia":"Bao Nhiêu"},{"stt":242,"hantu":"多數","pinyin":"Duōshù","nghia":"Hầu Hết"},{"stt":243,"hantu":"讀書","pinyin":"dúshū","nghia":"Đọc Sách, Đi Học"},{"stt":244,"hantu":"肚子","pinyin":"dùzi","nghia":"Bụng"},{"stt":245,"hantu":"餓","pinyin":"è","nghia":"Đói"},{"stt":246,"hantu":"二","pinyin":"èr","nghia":"Nhị: Số 2"},{"stt":247,"hantu":"耳朵","pinyin":"ěrduǒ","nghia":"Tai"},{"stt":248,"hantu":"而且","pinyin":"érqiě","nghia":"Mà Còn, Với Lại。(Liên Từ, Kết Hợp Với '不但、不仅')"},{"stt":249,"hantu":"兒子","pinyin":"érzi","nghia":"Con Trai"},{"stt":250,"hantu":"法國","pinyin":"Fàguó","nghia":"Pháp"},{"stt":252,"hantu":"飯店","pinyin":"fàndiàn","nghia":"Khách Sạn"},{"stt":253,"hantu":"房","pinyin":"fáng","nghia":"Phòng, Buồng"},{"stt":254,"hantu":"放","pinyin":"fàng","nghia":"Đặt, Để"},{"stt":255,"hantu":"房子","pinyin":"fáng·zi","nghia":"Nhà, Nhà Cửa, Cái Nhà"},{"stt":256,"hantu":"方便","pinyin":"fāngbiàn","nghia":"Thuận Tiện, Thuận Lợi"},{"stt":257,"hantu":"方法","pinyin":"fāngfǎ","nghia":"Phương Pháp"},{"stt":258,"hantu":"放假","pinyin":"fàngjià","nghia":"Kì Nghỉ"},{"stt":259,"hantu":"房間","pinyin":"fángjiān","nghia":"Phòng, Phòng Ở"},{"stt":260,"hantu":"方面","pinyin":"fāngmiàn","nghia":"Phương Diện, Lĩnh Vực"},{"stt":261,"hantu":"方式","pinyin":"fāngshì","nghia":"Phương Thức, Cách"},{"stt":262,"hantu":"放下","pinyin":"fàngxià","nghia":"Đặt Xuống"},{"stt":263,"hantu":"方向","pinyin":"fāngxiàng","nghia":"Phương Hướng"},{"stt":264,"hantu":"放心","pinyin":"fàngxīn","nghia":"Yên Tâm"},{"stt":265,"hantu":"發生","pinyin":"fāshēng","nghia":"Xảy Ra, Phát Sinh"},{"stt":266,"hantu":"發現","pinyin":"fāxiàn","nghia":"Phát Hiện"},{"stt":267,"hantu":"發展","pinyin":"fāzhǎn","nghia":"Phát Triển"},{"stt":268,"hantu":"飛","pinyin":"fēi","nghia":"Bay"},{"stt":269,"hantu":"非常","pinyin":"fēicháng","nghia":"Rất"},{"stt":270,"hantu":"飛機","pinyin":"fēijī","nghia":"Máy Bay"},{"stt":271,"hantu":"分","pinyin":"fēn","nghia":"Phân, Phút, Phần Trăm"},{"stt":272,"hantu":"風","pinyin":"Fēng","nghia":"Phong: Gió"},{"stt":273,"hantu":"封","pinyin":"fēng","nghia":"Bức, Lá, Phong (Thư)"},{"stt":274,"hantu":"封信","pinyin":"fēng xìn","nghia":"Bức Thư"},{"stt":275,"hantu":"風潮","pinyin":"fēngcháo","nghia":"Phòng Chào, Xu Thế"},{"stt":276,"hantu":"風景","pinyin":"fēngjǐng","nghia":"Phong Cảnh"},{"stt":277,"hantu":"分鐘","pinyin":"fēnzhōng","nghia":"Phút"},{"stt":278,"hantu":"付","pinyin":"fù","nghia":"Chi Trả, Chi, Chi Tiền"},{"stt":279,"hantu":"付錢","pinyin":"fù qián","nghia":"Trả Tiền"},{"stt":280,"hantu":"符合","pinyin":"fúhé","nghia":"Phù Hợp Với"},{"stt":281,"hantu":"附近","pinyin":"fùjìn","nghia":"Lân Cận"},{"stt":282,"hantu":"父親","pinyin":"fùqīn","nghia":"Phụ Thân, Bố"},{"stt":283,"hantu":"服務","pinyin":"fúwù","nghia":"Phục Vụ"},{"stt":284,"hantu":"服務生","pinyin":"fúwùshēng","nghia":"Người Phục Vụ"},{"stt":285,"hantu":"負責","pinyin":"fùzé","nghia":"Chịu Trách Nhiệm"},{"stt":286,"hantu":"蓋","pinyin":"gài","nghia":"Xây Dựng"},{"stt":287,"hantu":"改","pinyin":"găi","nghia":"Cải, Thay Đổi, Đổi, Đổi Thay, Biến Đổi"},{"stt":288,"hantu":"改變","pinyin":"gǎibiàn","nghia":"Thay Đổi, Cải Biến"},{"stt":289,"hantu":"改善","pinyin":"gǎishàn","nghia":"Cải Thiện, Cải Tiến"},{"stt":290,"hantu":"敢","pinyin":"gǎn","nghia":"Dám"},{"stt":291,"hantu":"乾","pinyin":"gān","nghia":"Khô, Khô Khan"},{"stt":292,"hantu":"剛","pinyin":"Gāng","nghia":"Vừa, Vừa Mới, Cương, Cứng"},{"stt":293,"hantu":"剛剛","pinyin":"gānggāng","nghia":"Vừa Mới Xong"},{"stt":294,"hantu":"鋼琴","pinyin":"gāngqín","nghia":"Đàn Piano"},{"stt":295,"hantu":"乾淨","pinyin":"gānjìng","nghia":"Sạch Sẽ"},{"stt":296,"hantu":"感覺","pinyin":"gǎnjué","nghia":"Cảm Thấy, Cảm Giác"},{"stt":297,"hantu":"感冒","pinyin":"gǎnmào","nghia":"Cảm Cúm"},{"stt":298,"hantu":"感情","pinyin":"gǎnqíng","nghia":"Cảm Xúc, Cảm Tình"},{"stt":299,"hantu":"感謝","pinyin":"gǎnxiè","nghia":"Cảm Ơn"},{"stt":300,"hantu":"高","pinyin":"Gāo","nghia":"Gao, Họ Cao"},{"stt":301,"hantu":"告訴","pinyin":"gàosù","nghia":"Bảo, Nói Cho Biết"},{"stt":302,"hantu":"高鐵","pinyin":"gāotiě","nghia":"Đường Sắt Cao Tốc"},{"stt":303,"hantu":"高興","pinyin":"gāoxìng","nghia":"Vui Mừng"},{"stt":304,"hantu":"個","pinyin":"ge","nghia":"Cái, Lượng Từ Chỉ Số Lượng"},{"stt":305,"hantu":"歌","pinyin":"gē","nghia":"Ca, Ca Khúc, Ca, Bài Hát, Bài Ca"},{"stt":306,"hantu":"歌唱","pinyin":"gēchàng","nghia":"Ca Hát"},{"stt":307,"hantu":"哥哥","pinyin":"Gēgē","nghia":"Anh Trai"},{"stt":308,"hantu":"給","pinyin":"Gěi","nghia":"Đưa, Chom, Giao Cho, Đưa Cho"},{"stt":309,"hantu":"跟","pinyin":"Gēn","nghia":"Với, Cùng Với, Và"},{"stt":310,"hantu":"更","pinyin":"gèng","nghia":"Càng, Thêm, Hơn Nữa"},{"stt":311,"hantu":"更好","pinyin":"gèng hǎo","nghia":"Tốt Hơn"},{"stt":312,"hantu":"根據","pinyin":"Gēnjù","nghia":"Căn Cứ, Căn Cứ Vào, Dựa Vào。"},{"stt":313,"hantu":"工廠","pinyin":"gōngchǎng","nghia":"Nhà Máy"},{"stt":314,"hantu":"公車","pinyin":"gōngchē","nghia":"Xe Buýt"},{"stt":315,"hantu":"公共汽車","pinyin":"gōnggòngqìchē","nghia":"Xe Bus"},{"stt":316,"hantu":"功課","pinyin":"gōngkè","nghia":"Bài Học, Môn Học, Môn"},{"stt":317,"hantu":"公司","pinyin":"Gōngsī","nghia":"Công Ty"},{"stt":318,"hantu":"恭喜","pinyin":"gōngxǐ","nghia":"Cung Hỉ: Chúc Mừng"},{"stt":319,"hantu":"公寓","pinyin":"gōngyù","nghia":"Căn Hộ, Ký Túc Xá"},{"stt":320,"hantu":"公園","pinyin":"gōngyuán","nghia":"Công Viên"},{"stt":321,"hantu":"工作","pinyin":"Gōngzuò","nghia":"Công Việc"},{"stt":322,"hantu":"夠","pinyin":"gòu","nghia":"Đủ"},{"stt":323,"hantu":"狗","pinyin":"Gǒu","nghia":"Chó"},{"stt":324,"hantu":"菇","pinyin":"gū","nghia":"Nấm"},{"stt":325,"hantu":"掛","pinyin":"guà","nghia":"Treo"},{"stt":326,"hantu":"掛號","pinyin":"guàhào","nghia":"Đăng Ký"},{"stt":327,"hantu":"乖","pinyin":"guāi","nghia":"Ngoan, Ngoan Ngoãn, Biết Nghe Lời, Không Quấy。"},{"stt":328,"hantu":"關","pinyin":"guān","nghia":"Đóng"},{"stt":329,"hantu":"逛","pinyin":"guàng","nghia":"Đi Dạo, Đi Bách Bộ, Dạo Chơi, Đi Chơi, Đi Ngao Du"},{"stt":330,"hantu":"光","pinyin":"guāng","nghia":"Ánh Sáng, Hết, Sạch, Sạch Trơn, Hết Sạch"},{"stt":331,"hantu":"廣告","pinyin":"guǎnggào","nghia":"Quảng Cáo"},{"stt":332,"hantu":"光臨","pinyin":"guānglín","nghia":"Quang Lâm, Đến Thăm"},{"stt":333,"hantu":"管理","pinyin":"guǎnlǐ","nghia":"Quản Lý"},{"stt":334,"hantu":"關門","pinyin":"guānmén","nghia":"Đóng Cửa"},{"stt":335,"hantu":"觀念","pinyin":"guānniàn","nghia":"Quan Niệm"},{"stt":336,"hantu":"關上","pinyin":"guānshàng","nghia":"Đóng Lại, Mạch Cổ Tay"},{"stt":337,"hantu":"關係","pinyin":"guānxì","nghia":"Mối Quan Hệ, Quan Hệ, Liên Hệ"},{"stt":338,"hantu":"關心","pinyin":"guānxīn","nghia":"Quan Tâm"},{"stt":339,"hantu":"觀眾","pinyin":"guānzhòng","nghia":"Khán Giả"},{"stt":340,"hantu":"貴","pinyin":"guì","nghia":"Đắt, Quý"},{"stt":341,"hantu":"規矩","pinyin":"guījǔ","nghia":"Luật Lệ, Quy Định"},{"stt":342,"hantu":"櫃子","pinyin":"guìzi","nghia":"Cái Tủ"},{"stt":343,"hantu":"顧客","pinyin":"gùkè","nghia":"Khách Hàng"},{"stt":344,"hantu":"國","pinyin":"guó","nghia":"Quốc, Đất Nước"},{"stt":345,"hantu":"過","pinyin":"guò","nghia":"Vượt Qua, Qua"},{"stt":346,"hantu":"過程","pinyin":"Guòchéng","nghia":"Quá Trình"},{"stt":347,"hantu":"過來","pinyin":"guòlái","nghia":"Lại, Sang Đây"},{"stt":348,"hantu":"國內","pinyin":"guónèi","nghia":"Quốc Nội, Trong Nước"},{"stt":349,"hantu":"過年","pinyin":"guònián","nghia":"Năm Mới"},{"stt":350,"hantu":"過去","pinyin":"guòqù","nghia":"Đã Qua, Quá Khứ, Trước Đây"},{"stt":351,"hantu":"果汁","pinyin":"guǒzhī","nghia":"Nước Trái Cây"},{"stt":352,"hantu":"故事","pinyin":"Gùshì","nghia":"Câu Chuyện"},{"stt":353,"hantu":"還","pinyin":"hái","nghia":"Cong, Vẫn, Vẫn Còn, Hoàn Lại, Trở Lại"},{"stt":354,"hantu":"害","pinyin":"hài","nghia":"Có Hại"},{"stt":355,"hantu":"海","pinyin":"Hǎi","nghia":"Biển"},{"stt":356,"hantu":"孩（子）","pinyin":"hái（ zi）","nghia":"Nhi Đồng, Trẻ Em, Trẻ Con, Con Nít, Em Bé"},{"stt":357,"hantu":"海邊","pinyin":"hǎibiān","nghia":"Bờ Biển"},{"stt":358,"hantu":"害怕","pinyin":"hàipà","nghia":"Sợ, Sợ Hãi, Sợ Sệt"},{"stt":359,"hantu":"還是","pinyin":"háishì","nghia":"Hay Là"},{"stt":360,"hantu":"漢堡","pinyin":"hànbǎo","nghia":"Bánh Hamburger"},{"stt":361,"hantu":"韓國","pinyin":"Hánguó","nghia":"Hàn Quốc"},{"stt":362,"hantu":"寒假","pinyin":"Hánjià","nghia":"Kỳ Nghỉ Đông"},{"stt":363,"hantu":"漢語","pinyin":"hànyŭ","nghia":"Hán Ngữ"},{"stt":364,"hantu":"漢字","pinyin":"hànzì","nghia":"Hán Từ, Chữ Hán, Chữ Hoa, Chữ Trung Quốc"},{"stt":365,"hantu":"號","pinyin":"hào","nghia":"Hiệu, Số, Cỡ"},{"stt":366,"hantu":"好","pinyin":"hăo","nghia":"Hão, Tốt, Lành, Đẹp"},{"stt":367,"hantu":"好吃","pinyin":"hăochī","nghia":"Ăn Ngon, Món Ăn Ngon"},{"stt":368,"hantu":"好吃好喝","pinyin":"hàochī hàohē","nghia":"Sành Ăn, Thích Ăn Ngon, Thích Ăn Uống"},{"stt":369,"hantu":"好看","pinyin":"hăokàn","nghia":"Đẹp, Coi Được, Xinh, Xinh Đẹp, Đẹp Đẽ, Đẹp Mắt"},{"stt":370,"hantu":"號碼","pinyin":"hàomǎ","nghia":"Con Số, Số Thứ Tự, Con Số"},{"stt":371,"hantu":"好玩","pinyin":"hăowán","nghia":"Thú Vị, Thích Thú"},{"stt":372,"hantu":"好像","pinyin":"hăoxiàng","nghia":"Hình Như, Dường Như, Như, Giống Như, Giống Hệt"},{"stt":373,"hantu":"河","pinyin":"hé","nghia":"Dòng Sông, Sông"},{"stt":374,"hantu":"喝","pinyin":"Hē","nghia":"Uống"},{"stt":375,"hantu":"黑","pinyin":"hēi","nghia":"Đen"},{"stt":376,"hantu":"黑板","pinyin":"hēibǎn","nghia":"Bảng Đen"},{"stt":377,"hantu":"黑色","pinyin":"hēisè","nghia":"Màu Đen"},{"stt":378,"hantu":"喝酒","pinyin":"hējiǔ","nghia":"Uống Rượu"},{"stt":379,"hantu":"很","pinyin":"hěn","nghia":"Rất, Lắm, Quá, Hết Sức, Cực Kỳ (Phó Từ)"},{"stt":380,"hantu":"很美","pinyin":"hěn měi","nghia":"Rất Đẹp"},{"stt":381,"hantu":"很多","pinyin":"hěnduō","nghia":"Rất Nhiều"},{"stt":382,"hantu":"紅","pinyin":"Hóng","nghia":"Màu Đỏ, Hồng"},{"stt":383,"hantu":"紅包","pinyin":"hóngbāo","nghia":"Hồng Bao, Tiền Lì Xì, Tiền Thưởng"},{"stt":384,"hantu":"紅茶","pinyin":"hóngchá","nghia":"Hồng Trà"},{"stt":385,"hantu":"紅綠燈","pinyin":"Hónglǜdēng","nghia":"Đèn Giao Thông"},{"stt":386,"hantu":"後","pinyin":"hòu","nghia":"Hậu: Họ Hậu, Sau, Phía Sau"},{"stt":387,"hantu":"後邊","pinyin":"hòubian","nghia":"Phía Sau"},{"stt":388,"hantu":"後來","pinyin":"Hòulái","nghia":"Về Sau, Sau Này, Sau, Sau Đó"},{"stt":389,"hantu":"湖","pinyin":"Hú","nghia":"Hồ, Hồ, Hồ Nước"},{"stt":390,"hantu":"畫","pinyin":"huà","nghia":"Bức Tranh, Vẽ"},{"stt":391,"hantu":"花","pinyin":"Huā","nghia":"Hoa"},{"stt":392,"hantu":"花錢","pinyin":"huā qián","nghia":"Tiêu Tiền"},{"stt":393,"hantu":"滑鼠","pinyin":"huá shǔ","nghia":"Chuột Máy Tính"},{"stt":394,"hantu":"花朵","pinyin":"huāduǒ","nghia":"Bông Hoa"},{"stt":395,"hantu":"壞","pinyin":"huài","nghia":"Hoại: Xấu, Không Tốt"},{"stt":396,"hantu":"畫家","pinyin":"huàjiā","nghia":"Họa Gia, Họa Sỹ"},{"stt":397,"hantu":"換","pinyin":"huàn","nghia":"Thay Đổi, Đổi"},{"stt":398,"hantu":"還給","pinyin":"huán gěi","nghia":"Trả Lại"},{"stt":399,"hantu":"黃","pinyin":"huáng","nghia":"Hoàng, Họ Hoàng, Màu Vàng"},{"stt":400,"hantu":"環境","pinyin":"huánjìng","nghia":"Môi Trường"},{"stt":401,"hantu":"歡迎","pinyin":"huānyíng","nghia":"Chào Mừng"},{"stt":402,"hantu":"花瓶","pinyin":"huāpíng","nghia":"Lọ Cắm Hoa"},{"stt":403,"hantu":"花香","pinyin":"huāxiāng","nghia":"Mùi Thơm Của Hoa"},{"stt":404,"hantu":"滑雪","pinyin":"huáxuě","nghia":"Trượt Tuyết"},{"stt":405,"hantu":"花園","pinyin":"huāyuán","nghia":"Vườn Hoa"},{"stt":406,"hantu":"化妝","pinyin":"Huàzhuāng","nghia":"Chăm Sóc Da, Hóa Trang"},{"stt":407,"hantu":"回","pinyin":"huí","nghia":"Về, Trở Về, Trả Về"},{"stt":408,"hantu":"會","pinyin":"huì","nghia":"Có Thể"},{"stt":409,"hantu":"回家","pinyin":"huí jiā","nghia":"Về Nhà"},{"stt":410,"hantu":"回答","pinyin":"huídá","nghia":"Trả Lời, Hồi Đáp"},{"stt":411,"hantu":"回去","pinyin":"huíqù","nghia":"Trở Lại, Trở Về, Đi Về, Về"},{"stt":412,"hantu":"活","pinyin":"huó","nghia":"Sống, Sinh Sống, Sinh Hoạt"},{"stt":413,"hantu":"或","pinyin":"huò","nghia":"Có Thể, Có Lẽ, Chắc Là"},{"stt":414,"hantu":"火","pinyin":"huǒ","nghia":"Hỏa: Lửa"},{"stt":415,"hantu":"或是","pinyin":"huò shì","nghia":"Hoặc"},{"stt":416,"hantu":"火車","pinyin":"huǒchē","nghia":"Xe Lửa, Tầu Hỏa"},{"stt":417,"hantu":"活動","pinyin":"huódòng","nghia":"Hoạt Động"},{"stt":418,"hantu":"護士","pinyin":"hùshì","nghia":"Y Tá"},{"stt":419,"hantu":"寄","pinyin":"jì","nghia":"Gửi"},{"stt":420,"hantu":"記","pinyin":"jì","nghia":"Nhớ"},{"stt":421,"hantu":"幾","pinyin":"jǐ","nghia":"Mấy (Hỏi Số), Vài, Mấy (Số Lượng 1-10)"},{"stt":422,"hantu":"記錯","pinyin":"jì cuò","nghia":"Nhớ Nhầm"},{"stt":423,"hantu":"計畫","pinyin":"jì huà","nghia":"Kế Hoạch"},{"stt":424,"hantu":"價","pinyin":"jià","nghia":"Giá"},{"stt":425,"hantu":"加","pinyin":"jiā","nghia":"Phép Cộng, Cộng, Tăng, Gia, Thêm, Gia Tăng"},{"stt":426,"hantu":"家","pinyin":"jiā","nghia":"Gia: Gia Đình, Nhà, Nhà, Gia, Phái"},{"stt":427,"hantu":"加班","pinyin":"jiābān","nghia":"Làm Thêm Giờ, Tăng Ca"},{"stt":428,"hantu":"價格","pinyin":"jiàgé","nghia":"Giá Cả"},{"stt":429,"hantu":"家具","pinyin":"jiājù","nghia":"Nội Thất"},{"stt":430,"hantu":"件","pinyin":"Jiàn","nghia":"Cái, Kiện.."},{"stt":431,"hantu":"間","pinyin":"jiān","nghia":"Gian: Giữa, Ở Giữa"},{"stt":432,"hantu":"檢查","pinyin":"jiǎnchá","nghia":"Điều Tra, Kiểm Tra"},{"stt":433,"hantu":"簡單","pinyin":"jiǎndān","nghia":"Đơn Giản"},{"stt":434,"hantu":"講","pinyin":"jiǎng","nghia":"Nói Chuyện, Giảng"},{"stt":435,"hantu":"講話","pinyin":"jiǎnghuà","nghia":"Nói Chuyện, Giảng Giải"},{"stt":436,"hantu":"健康","pinyin":"jiànkāng","nghia":"Sức Khỏe"},{"stt":437,"hantu":"見面","pinyin":"Jiànmiàn","nghia":"Gặp Mặt, Gặp Nhau"},{"stt":438,"hantu":"建議","pinyin":"jiànyì","nghia":"Gợi Ý"},{"stt":439,"hantu":"叫","pinyin":"jiào","nghia":"Gọi"},{"stt":440,"hantu":"腳","pinyin":"jiăo","nghia":"Cước: Bàn Chân, Chân"},{"stt":441,"hantu":"餃","pinyin":"jiăo","nghia":"Sủi Cảo, Bánh Chẻo"},{"stt":442,"hantu":"交","pinyin":"jiāo","nghia":"Giao"},{"stt":443,"hantu":"教","pinyin":"jiāo","nghia":"Giáo: Dạy Dỗ, Giáo Dục, Chỉ Bảo"},{"stt":444,"hantu":"郊區","pinyin":"jiāoqū","nghia":"Vùng Ngoại Ô"},{"stt":445,"hantu":"教室","pinyin":"Jiàoshì","nghia":"Giảng Đường, Phòng Học"},{"stt":446,"hantu":"教書","pinyin":"jiāoshū","nghia":"Dạy Học"},{"stt":447,"hantu":"腳踏車","pinyin":"jiǎotàchē","nghia":"Xe Đạp"},{"stt":448,"hantu":"交通","pinyin":"jiāotōng","nghia":"Giao Thông"},{"stt":449,"hantu":"家人","pinyin":"jiārén","nghia":"Người Nhà, Gia Đình"},{"stt":450,"hantu":"家庭","pinyin":"jiātíng","nghia":"Gia Đình"},{"stt":451,"hantu":"嘉義","pinyin":"jiāyì","nghia":"Gia Nghĩa (Tp Đài Loan)"},{"stt":452,"hantu":"價值","pinyin":"jiàzhí","nghia":"Giá Trị"},{"stt":453,"hantu":"機場","pinyin":"jīchǎng","nghia":"Sân Bay"},{"stt":454,"hantu":"計程車","pinyin":"jìchéngchē","nghia":"Xe Taxi"},{"stt":455,"hantu":"基礎","pinyin":"jīchǔ","nghia":"Cơ Bản"},{"stt":456,"hantu":"界","pinyin":"jiè","nghia":"Giới, Danh Giới"},{"stt":457,"hantu":"借","pinyin":"jiè","nghia":"Vay Mượn"},{"stt":458,"hantu":"接","pinyin":"jiē","nghia":"Đón Nhận, Nhận, Nhận Lấy, Đỡ Lấy, Đón"},{"stt":459,"hantu":"結果","pinyin":"jiéguǒ","nghia":"Kết Quả"},{"stt":460,"hantu":"結婚","pinyin":"jiéhūn","nghia":"Kết Hôn"},{"stt":461,"hantu":"姐姐","pinyin":"jiějie","nghia":"Tỷ Tỷ, Chị Gái"},{"stt":462,"hantu":"解決","pinyin":"jiějué","nghia":"Giải Quyết, Dàn Xếp, Tháo Gỡ, Thu Xếp"},{"stt":463,"hantu":"節目","pinyin":"jiémù","nghia":"Chương Trình, Tiếtmục"},{"stt":464,"hantu":"介紹","pinyin":"jièshào","nghia":"Giới Thiệu"},{"stt":465,"hantu":"結束","pinyin":"jiéshù","nghia":"Kết Thúc"},{"stt":466,"hantu":"解說","pinyin":"jiěshuō","nghia":"Giảng Giải, Thuyết Minh"},{"stt":467,"hantu":"及格","pinyin":"jígé","nghia":"Hợp Cách, Hợp Thức, Hợp Lệ, Đạt Yêu Cầu"},{"stt":468,"hantu":"幾乎","pinyin":"jīhū","nghia":"Hầu Hết, Hầu Như"},{"stt":469,"hantu":"計劃","pinyin":"jìhuà","nghia":"Kế Hoạch"},{"stt":470,"hantu":"機會","pinyin":"jīhuì","nghia":"Cơ Hội"},{"stt":471,"hantu":"即將","pinyin":"jíjiāng","nghia":"Gần, Sắp, Sẽ"},{"stt":472,"hantu":"季節","pinyin":"jìjié","nghia":"Mùa, Tiết"},{"stt":473,"hantu":"機率","pinyin":"jīlǜ","nghia":"Sác Xuất, Cơ Hội"},{"stt":474,"hantu":"近","pinyin":"Jìn","nghia":"Gần"},{"stt":475,"hantu":"進","pinyin":"jìn","nghia":"Đi Vào, Tiến"},{"stt":476,"hantu":"斤","pinyin":"jīn","nghia":"Cân (Cân Tàu = 1/2Kg)"},{"stt":477,"hantu":"進步","pinyin":"jìnbù","nghia":"Tiến Triển, Tiến Bộ"},{"stt":478,"hantu":"警察","pinyin":"jǐngchá","nghia":"Cảnh Sát"},{"stt":479,"hantu":"警察局","pinyin":"jǐngchá jú","nghia":"Đồn Cảnh Sát"},{"stt":480,"hantu":"經常","pinyin":"jīngcháng","nghia":"Thường, Thường Thường"},{"stt":481,"hantu":"經理","pinyin":"jīnglǐ","nghia":"Giám Đốc"},{"stt":482,"hantu":"經驗","pinyin":"jīngyàn","nghia":"Kinh Nghiệm"},{"stt":483,"hantu":"進來","pinyin":"jìnlái","nghia":"Đi Vào, Vào Đây, Vào, Trở Vào"},{"stt":484,"hantu":"近年","pinyin":"Jìnnián","nghia":"Năm Gần Đây"},{"stt":485,"hantu":"進去","pinyin":"jìnqù","nghia":"Đi Vào"},{"stt":486,"hantu":"今天","pinyin":"jīntiān","nghia":"Hôm Nay"},{"stt":487,"hantu":"緊張","pinyin":"jǐnzhāng","nghia":"Lo Lắng"},{"stt":488,"hantu":"機票","pinyin":"jīpiào","nghia":"Vé Máy Bay"},{"stt":489,"hantu":"雞肉","pinyin":"jīròu","nghia":"Thịt Gà"},{"stt":490,"hantu":"舊","pinyin":"jiù","nghia":"Cũ"},{"stt":491,"hantu":"就","pinyin":"jiù","nghia":"Liền, Ngay, Mà, Rồi, Là...Ngay"},{"stt":492,"hantu":"酒","pinyin":"Jiǔ","nghia":"Rượu"},{"stt":493,"hantu":"久","pinyin":"jiǔ","nghia":"Cửu: Lâu Dài, Lâu, Lâu Dài, Lâu"},{"stt":494,"hantu":"九","pinyin":"jiŭ","nghia":"Cửu, Số Chín"},{"stt":495,"hantu":"舊城","pinyin":"jiù chéng","nghia":"Thành Phố Cổ"},{"stt":496,"hantu":"舊書","pinyin":"jiùshū","nghia":"Cuốn Sách Cũ"},{"stt":497,"hantu":"就要","pinyin":"jiùyào","nghia":"Cần Phải"},{"stt":498,"hantu":"繼續","pinyin":"jìxù","nghia":"Tiếp Tục"},{"stt":499,"hantu":"記者","pinyin":"Jìzhě","nghia":"Phóng Viên"},{"stt":500,"hantu":"舉手","pinyin":"Jǔ shǒu","nghia":"Giơ Tay Bạn Lên"},{"stt":501,"hantu":"覺得","pinyin":"juédé","nghia":"Cảm Thấy, Thấy, Cho Rằng, Thấy Rằng"},{"stt":502,"hantu":"決定","pinyin":"juédìng","nghia":"Quyết Định"},{"stt":503,"hantu":"舉凡","pinyin":"jǔfán","nghia":"Phàm Là, Gồm, Hễ Là"},{"stt":504,"hantu":"拒絕","pinyin":"jùjué","nghia":"Cự Tuyệt, Từ Chối, Khước Từ"},{"stt":505,"hantu":"句子","pinyin":"jùzi","nghia":"Câu,"},{"stt":506,"hantu":"咖啡","pinyin":"Kāfēi","nghia":"Cà Phê"},{"stt":507,"hantu":"咖啡廳","pinyin":"kāfēi tīng","nghia":"Quán Cà Phê"},{"stt":508,"hantu":"開","pinyin":"kāi","nghia":"Khai: Mở, Mở Ra"},{"stt":509,"hantu":"開燈","pinyin":"kāi dēng","nghia":"Bật Đèn"},{"stt":510,"hantu":"開車","pinyin":"Kāichē","nghia":"Lái Xe"},{"stt":511,"hantu":"開店","pinyin":"kāidiàn","nghia":"Mở Cửa Hàng"},{"stt":512,"hantu":"開會","pinyin":"Kāihuì","nghia":"Cuộc Họp"},{"stt":513,"hantu":"開門","pinyin":"kāimén","nghia":"Mở Cửa"},{"stt":514,"hantu":"開始","pinyin":"Kāishǐ","nghia":"Bắt Đầu"},{"stt":515,"hantu":"開水","pinyin":"kāishuǐ","nghia":"Nước Sôi"},{"stt":516,"hantu":"開心","pinyin":"kāixīn","nghia":"Vui Vẻ, Hài Lòng"},{"stt":517,"hantu":"開學","pinyin":"kāixué","nghia":"Khai Giảng, Khai Trường"},{"stt":518,"hantu":"看","pinyin":"kàn","nghia":"Nhìn, Xem, Coi"},{"stt":519,"hantu":"看電影","pinyin":"Kàn diànyǐng","nghia":"Xem Phim"},{"stt":520,"hantu":"看病","pinyin":"kànbìng","nghia":"Gặp Bác Sĩ, Khám Bện"},{"stt":521,"hantu":"看到","pinyin":"kàndào","nghia":"Nhìn Thấy"},{"stt":522,"hantu":"看法","pinyin":"kànfǎ","nghia":"Cách Nhìn, Quan Điểm"},{"stt":523,"hantu":"抗","pinyin":"kàng","nghia":"Chống Chọi, Đỡ, Đề Kháng"},{"stt":524,"hantu":"看見","pinyin":"kànjiàn","nghia":"Nhìn Thấy"},{"stt":525,"hantu":"看書","pinyin":"Kànshū","nghia":"Đọc Sách"},{"stt":526,"hantu":"烤","pinyin":"kăo","nghia":"Nướng"},{"stt":527,"hantu":"烤肉","pinyin":"kǎoròu","nghia":"Nướng Thịt"},{"stt":528,"hantu":"考試","pinyin":"Kǎoshì","nghia":"Thi, Kiểm Tra"},{"stt":529,"hantu":"烤鴨","pinyin":"kǎoyā","nghia":"Vịt Quay"},{"stt":530,"hantu":"卡片","pinyin":"kǎpiàn","nghia":"Thẻ"},{"stt":531,"hantu":"客","pinyin":"Kè","nghia":"Khách"},{"stt":532,"hantu":"課","pinyin":"kè","nghia":"Khóa: Giờ Học, Lên Lớp, Tiết Học"},{"stt":533,"hantu":"渴","pinyin":"kě","nghia":"Khát"},{"stt":534,"hantu":"顆","pinyin":"kē","nghia":"Hạt, Hòn Viên"},{"stt":535,"hantu":"可愛","pinyin":"kěài","nghia":"Khả Ái, Đáng Yên"},{"stt":536,"hantu":"課本","pinyin":"kèběn","nghia":"Sách Giáo Khoa"},{"stt":537,"hantu":"科技","pinyin":"kējì","nghia":"Khoa Học Kỹ Thuật, Khoa Học Công Nghệ"},{"stt":538,"hantu":"可樂","pinyin":"kělè","nghia":"Cô Ca, Nước Cô Ca"},{"stt":539,"hantu":"可能","pinyin":"kěnéng","nghia":"Khả Năng, Có Thể, Thực Hiện Được, Làm Được"},{"stt":540,"hantu":"可怕","pinyin":"kěpà","nghia":"Tệ Hại, Đáng Sợ"},{"stt":541,"hantu":"客氣","pinyin":"kèqì","nghia":"Khách Sáo"},{"stt":542,"hantu":"客人","pinyin":"Kèrén","nghia":"Khách, Khách Mời"},{"stt":543,"hantu":"咳嗽","pinyin":"késòu","nghia":"Ho, Bị Ho"},{"stt":544,"hantu":"課堂","pinyin":"kètáng","nghia":"Lớp Học"},{"stt":545,"hantu":"客廳","pinyin":"kètīng","nghia":"Phòng Khách"},{"stt":546,"hantu":"科學","pinyin":"kēxué","nghia":"Khoa Học"},{"stt":547,"hantu":"可以","pinyin":"kěyǐ","nghia":"Có Thể, Có Khả Năng, Có Năng Lực"},{"stt":548,"hantu":"恐","pinyin":"kǒng","nghia":"Sợ Hãi, Sợ Sệt, Kinh Khủng, Lo Sợ"},{"stt":549,"hantu":"空","pinyin":"Kōng","nghia":"Trống Rỗng, Trống Không, Không, Rỗng, Trống"},{"stt":550,"hantu":"空氣","pinyin":"kōngqì","nghia":"Không Khí"},{"stt":551,"hantu":"口","pinyin":"kǒu","nghia":"Khẩu, Miệng, Nhân Khẩu, Cửa, Cửa Ra Vào"},{"stt":552,"hantu":"苦","pinyin":"kǔ","nghia":"Vị Đắng"},{"stt":553,"hantu":"哭","pinyin":"kū","nghia":"Khóc"},{"stt":554,"hantu":"塊","pinyin":"kuài","nghia":"Khối: Miếng, Viên, Hòn, Cục"},{"stt":555,"hantu":"快","pinyin":"kuài","nghia":"Nhanh"},{"stt":556,"hantu":"筷子","pinyin":"Kuàizi","nghia":"Đũa"},{"stt":557,"hantu":"苦瓜","pinyin":"kǔguā","nghia":"Mướp Đắng, Khổ Qua"},{"stt":558,"hantu":"窺","pinyin":"kuī","nghia":"Hé, Nhìn Lén, Nhìn Trộm, Dòm Ngó"},{"stt":559,"hantu":"褲子","pinyin":"Kùzi","nghia":"Quần Dài"},{"stt":560,"hantu":"拉","pinyin":"lā","nghia":"Lôi, Kéo, Chở"},{"stt":561,"hantu":"來","pinyin":"lái","nghia":"Đến"},{"stt":562,"hantu":"垃圾","pinyin":"lājī","nghia":"Rác"},{"stt":563,"hantu":"藍","pinyin":"lán","nghia":"Màu Xanh Da Trời"},{"stt":564,"hantu":"籃球","pinyin":"lánqiú","nghia":"Bóng Rổ"},{"stt":565,"hantu":"老","pinyin":"lăo","nghia":"Lão, Già"},{"stt":566,"hantu":"老闆","pinyin":"lǎobǎn","nghia":"Ông Chủ"},{"stt":567,"hantu":"老化","pinyin":"lǎohuà","nghia":"Lão Hoá, Già"},{"stt":568,"hantu":"老師","pinyin":"Lǎoshī","nghia":"Thầy Giáo, Cô Giáo, Giáo Viên"},{"stt":569,"hantu":"了","pinyin":"le","nghia":"Dùng Sau Động Tự Thể Hiện Việc Đã Xong, Cuối Câu"},{"stt":570,"hantu":"累","pinyin":"lèi","nghia":"Mệt"},{"stt":571,"hantu":"冷","pinyin":"lěng","nghia":"Lạnh"},{"stt":572,"hantu":"冷氣","pinyin":"lěngqì","nghia":"Máy Điều Hòa"},{"stt":573,"hantu":"冷氣機","pinyin":"Lěngqì jī","nghia":"Máy Điều Hòa"},{"stt":574,"hantu":"離","pinyin":"lí","nghia":"Li: Khoảng Cách, Cự Ly"},{"stt":575,"hantu":"裡","pinyin":"lǐ","nghia":"Họ Lý, Bên Trong"},{"stt":576,"hantu":"臉","pinyin":"liǎn","nghia":"Mặt"},{"stt":577,"hantu":"涼","pinyin":"liáng","nghia":"Mát, Để Nguộn"},{"stt":578,"hantu":"輛","pinyin":"liàng","nghia":"Chiếc (Chỉ Xe Cộ)"},{"stt":579,"hantu":"亮","pinyin":"liàng","nghia":"Sáng, Bóng, Phát Sáng"},{"stt":580,"hantu":"兩","pinyin":"liăng","nghia":"Lưỡng, Cặp, Hai"},{"stt":581,"hantu":"涼快","pinyin":"liángkuai","nghia":"Mát Mẻ"},{"stt":582,"hantu":"聯繫","pinyin":"liánxì","nghia":"Liên Lạc, Kết Nối"},{"stt":583,"hantu":"練習","pinyin":"liànxí","nghia":"Luyện Tập"},{"stt":584,"hantu":"了解","pinyin":"liǎojiě","nghia":"Hiểu Rõ, Biết Rõ, Biết, Hiểu"},{"stt":585,"hantu":"聊天","pinyin":"liáotiān","nghia":"Trò Chuyện"},{"stt":586,"hantu":"禮拜","pinyin":"lǐbài","nghia":"Lễ Bái, Tuần Lễ, Thứ Trong Tuần"},{"stt":587,"hantu":"理解","pinyin":"lǐjiě","nghia":"Hiểu, Đã Thông"},{"stt":588,"hantu":"離開","pinyin":"Líkāi","nghia":"Rời Khỏi, Rời Đi"},{"stt":589,"hantu":"力量","pinyin":"lìliàng","nghia":"Sức Lực, Lực Lượng, Sức Mạnh。"},{"stt":590,"hantu":"禮貌","pinyin":"lǐmào","nghia":"Lịch Sự, Lễ Độ"},{"stt":591,"hantu":"裡面","pinyin":"lǐmiàn","nghia":"Trong, Bên Trong"},{"stt":592,"hantu":"林","pinyin":"lín","nghia":"Rừng, Lâm"},{"stt":593,"hantu":"零","pinyin":"líng","nghia":"Linh: Vụn Vặt, Lẻ, Số Không"},{"stt":594,"hantu":"另","pinyin":"lìng","nghia":"Ngoài, Khác"},{"stt":595,"hantu":"另外","pinyin":"lìngwài","nghia":"Ngoài Ra"},{"stt":596,"hantu":"鄰居","pinyin":"línjū","nghia":"Hàng Xóm"},{"stt":597,"hantu":"留","pinyin":"liú","nghia":"Lưu"},{"stt":598,"hantu":"六","pinyin":"liù","nghia":"Lục: Số 6"},{"stt":599,"hantu":"流行","pinyin":"liúxíng","nghia":"Phổ Biến, Lưu Hành"},{"stt":600,"hantu":"留言","pinyin":"liúyán","nghia":"Nhắn Lời, Thư Để Lại, Lời Dặn Dò"},{"stt":601,"hantu":"禮物","pinyin":"lǐwù","nghia":"Quà"},{"stt":602,"hantu":"利用","pinyin":"lìyòng","nghia":"Lợi Dụng, Sử Dụng"},{"stt":603,"hantu":"樓","pinyin":"lóu","nghia":"Lầu, Tầng"},{"stt":604,"hantu":"樓下","pinyin":"lóu xià","nghia":"Tầng Dưới"},{"stt":605,"hantu":"樓上","pinyin":"lóushàng","nghia":"Tầng Trên, Lầu Trên"},{"stt":606,"hantu":"樓梯","pinyin":"lóutī","nghia":"Cầu Thang"},{"stt":607,"hantu":"綠","pinyin":"lǜ","nghia":"Màu Xanh Lá"},{"stt":608,"hantu":"爐","pinyin":"lú","nghia":"Lò, Bếp"},{"stt":609,"hantu":"亂","pinyin":"luàn","nghia":"Sự Hỗn Loạn, Loạn"},{"stt":610,"hantu":"綠燈","pinyin":"lǜdēng","nghia":"Đèn Xanh"},{"stt":611,"hantu":"旅館","pinyin":"Lǚguǎn","nghia":"Lữ Quán, Quán Trọ, Khách Sạn"},{"stt":612,"hantu":"旅客","pinyin":"lǚkè","nghia":"Khách Hàng"},{"stt":613,"hantu":"路口","pinyin":"Lùkǒu","nghia":"Giao Lộ, Đường Giao"},{"stt":614,"hantu":"論","pinyin":"lùn","nghia":"Luận Bàn, Luận"},{"stt":615,"hantu":"路上","pinyin":"lùshàng","nghia":"Trên Dường"},{"stt":616,"hantu":"旅行","pinyin":"lǚxíng","nghia":"Lữ Hành, Du Lịch"},{"stt":617,"hantu":"旅行社","pinyin":"lǚxíngshè","nghia":"Cơ Quan Du Lịch, Công Ty Du Lịch"},{"stt":618,"hantu":"旅遊","pinyin":"lǚyóu","nghia":"Du Lịch"},{"stt":619,"hantu":"嗎","pinyin":"ma","nghia":"Ừ, À: Dùng Ở Cuối Câu Để Hỏi"},{"stt":620,"hantu":"馬","pinyin":"mă","nghia":"Mã, Họ Mã: Con Ngựa"},{"stt":621,"hantu":"麻煩","pinyin":"máfan","nghia":"Rắc Rối"},{"stt":622,"hantu":"買","pinyin":"Mǎi","nghia":"Mua"},{"stt":623,"hantu":"賣","pinyin":"Mài","nghia":"Bán"},{"stt":624,"hantu":"媽媽","pinyin":"māmā","nghia":"Mẹ"},{"stt":625,"hantu":"慢","pinyin":"màn","nghia":"Chậm"},{"stt":626,"hantu":"滿","pinyin":"mǎn","nghia":"Đầy, Mãn Nguyện"},{"stt":627,"hantu":"慢慢","pinyin":"Màn man","nghia":"Từ Từ, Chậm, Chậm"},{"stt":628,"hantu":"忙","pinyin":"máng","nghia":"Bận, Bận Bịu"},{"stt":629,"hantu":"滿意","pinyin":"mǎnyì","nghia":"Thỏa Mãn"},{"stt":630,"hantu":"毛","pinyin":"máo","nghia":"Mao, Họ Mao: Lông"},{"stt":631,"hantu":"貓","pinyin":"māo","nghia":"Mèo"},{"stt":632,"hantu":"毛筆","pinyin":"máobǐ","nghia":"Bút Lông"},{"stt":633,"hantu":"毛衣","pinyin":"máoyī","nghia":"Áo Lông"},{"stt":634,"hantu":"帽子","pinyin":"Màozi","nghia":"Mũ, Cái Mũ"},{"stt":635,"hantu":"馬上","pinyin":"mǎshàng","nghia":"Ngay Lập Tức"},{"stt":636,"hantu":"沒","pinyin":"méi","nghia":"Không, Không Có"},{"stt":637,"hantu":"每","pinyin":"měi","nghia":"Mọi, Mỗi"},{"stt":638,"hantu":"每次","pinyin":"měi cì","nghia":"Mỗi Lần"},{"stt":639,"hantu":"沒問題","pinyin":"méi wèntí","nghia":"Không Vấn Đề"},{"stt":640,"hantu":"沒關係","pinyin":"méiguānxì","nghia":"Không Quan Trọng"},{"stt":641,"hantu":"美國","pinyin":"Měiguó","nghia":"Nước Mỹ"},{"stt":642,"hantu":"美麗","pinyin":"měilì","nghia":"Mỹ Lệ, Đẹp"},{"stt":643,"hantu":"妹妹","pinyin":"mèimei","nghia":"Muội Muội, Em Gái"},{"stt":644,"hantu":"每年","pinyin":"měinián","nghia":"Hằng Năm, Mỗi Năm"},{"stt":645,"hantu":"沒事","pinyin":"méishì","nghia":"Không Sao"},{"stt":646,"hantu":"美食","pinyin":"měishí","nghia":"Thức Ăn Ngon"},{"stt":647,"hantu":"每天","pinyin":"měitiān","nghia":"Hằng Ngày"},{"stt":648,"hantu":"沒有","pinyin":"méiyǒu","nghia":"Không Có"},{"stt":649,"hantu":"門","pinyin":"mén","nghia":"Cổng, Cửa"},{"stt":650,"hantu":"門口","pinyin":"ménkǒu","nghia":"Cửa, Cổng"},{"stt":651,"hantu":"米","pinyin":"mǐ","nghia":"Mễ: Họ Mễ: Gạo, Hạt Gạo, Mét (M) Đơn Vị Đo"},{"stt":652,"hantu":"麵","pinyin":"miàn","nghia":"Mì"},{"stt":653,"hantu":"麵包","pinyin":"Miànbāo","nghia":"Bánh Mỳ"},{"stt":654,"hantu":"麵包店","pinyin":"miànbāodiàn","nghia":"Tiệm Bánh Mỳ"},{"stt":655,"hantu":"麵條","pinyin":"miàntiáo","nghia":"Mỳ Sợi"},{"stt":656,"hantu":"明白","pinyin":"míngbái","nghia":"Biết, Hiểu"},{"stt":657,"hantu":"明年","pinyin":"míngnián","nghia":"Năm Sau"},{"stt":658,"hantu":"明天","pinyin":"míngtiān","nghia":"Ngày Mai"},{"stt":659,"hantu":"名字","pinyin":"míngzì","nghia":"Tên"},{"stt":660,"hantu":"摩托車","pinyin":"mótuōchē","nghia":"Xe Máy, Xe Mô Tô"},{"stt":661,"hantu":"木(頭)","pinyin":"mù（ tou）","nghia":"Mộc, Miếng Gỗ"},{"stt":662,"hantu":"目的","pinyin":"mùdì","nghia":"Mục Đích"},{"stt":663,"hantu":"目光","pinyin":"mùguāng","nghia":"Ánh Mắt, Tầm Mắt, Tầm Nhìn"},{"stt":664,"hantu":"母親","pinyin":"mǔqīn","nghia":"Mẹ"},{"stt":665,"hantu":"拿","pinyin":"ná","nghia":"Cầm, Lấy"},{"stt":666,"hantu":"那","pinyin":"nà","nghia":"Kia: Đại Từ Chỉ Vật, Người Ở Xa"},{"stt":667,"hantu":"哪","pinyin":"nă","nghia":"Đâu, Từ Dùng Để Hỏi Ở Đâu"},{"stt":668,"hantu":"那邊","pinyin":"nàbiān","nghia":"Ở Đó, Ở Chỗ Kia"},{"stt":669,"hantu":"哪裡","pinyin":"nălǐ","nghia":"Đâu, Chỗ Nào"},{"stt":670,"hantu":"那麼","pinyin":"nàme","nghia":"Như Vậy, Như Thế, Như Thế Đấy, Thế Đó, Thế Đấy"},{"stt":671,"hantu":"難","pinyin":"Nán","nghia":"Khó"},{"stt":672,"hantu":"男","pinyin":"nán","nghia":"Nam Giới"},{"stt":673,"hantu":"南(邊)","pinyin":"nán（ biān）","nghia":"Phía Nam"},{"stt":674,"hantu":"奶奶","pinyin":"nănai","nghia":"Bà Nội"},{"stt":675,"hantu":"南部","pinyin":"nánbù","nghia":"Phía Nam"},{"stt":676,"hantu":"難道","pinyin":"nándào","nghia":"Chả Trách,"},{"stt":677,"hantu":"難過","pinyin":"nánguò","nghia":"Buồn, Chán"},{"stt":678,"hantu":"男孩","pinyin":"nánhái","nghia":"Con Trai"},{"stt":679,"hantu":"那兒","pinyin":"nàr","nghia":"Chỗ Ấy, Nơi Ấy"},{"stt":680,"hantu":"哪兒","pinyin":"nǎr","nghia":"Chỗ Nào, Đâu"},{"stt":681,"hantu":"呢","pinyin":"ne","nghia":"Thế, Nhỉ, Vậy (Dùng Để Hỏi), Nhé, Nhỉ (Dùng Ở Cuối Câu Trần Thuật)"},{"stt":682,"hantu":"內容","pinyin":"nèiróng","nghia":"Nội Dung"},{"stt":683,"hantu":"能","pinyin":"néng","nghia":"Có Thể"},{"stt":684,"hantu":"能夠","pinyin":"nénggòu","nghia":"Đủ, Có Đủ, Cần Đủ"},{"stt":685,"hantu":"年","pinyin":"nián","nghia":"Niên, Năm"},{"stt":686,"hantu":"念","pinyin":"niàn","nghia":"Niệm, Họ Niệm: Nhớ, Nhớ Nhung, Đọc, Học Bài"},{"stt":687,"hantu":"年紀","pinyin":"niánjì","nghia":"Uổi Tác, Tuổi, Niên Kỷ"},{"stt":688,"hantu":"年輕","pinyin":"niánqīng","nghia":"Thanh Niên, Người Trẻ"},{"stt":689,"hantu":"唸書","pinyin":"niànshū","nghia":"Học Bài, Đọc Sách"},{"stt":690,"hantu":"鳥","pinyin":"Niǎo","nghia":"Chim"},{"stt":691,"hantu":"您","pinyin":"nín","nghia":"Ngài, Ông (Đại Từ Nhân Xưng, Có Ý Kính Trọng)"},{"stt":692,"hantu":"牛","pinyin":"niú","nghia":"Con Bò"},{"stt":693,"hantu":"牛奶","pinyin":"niúnǎi","nghia":"Sửa Bò"},{"stt":694,"hantu":"牛排","pinyin":"niúpái","nghia":"Bít Tết"},{"stt":695,"hantu":"牛仔褲","pinyin":"niúzǎikù","nghia":"Quần Jean"},{"stt":696,"hantu":"弄","pinyin":"nòng","nghia":"Làm, Kiếm Cách, Tìm Cách"},{"stt":697,"hantu":"女","pinyin":"nǚ","nghia":"Nữ Giới"},{"stt":698,"hantu":"暖和","pinyin":"nuănhuo","nghia":"Ấm Áp (Khí Hậu, Hoàn Cảnh), Sửa Ấm"},{"stt":699,"hantu":"女孩","pinyin":"nǚhái","nghia":"Con Gái"},{"stt":700,"hantu":"努力","pinyin":"nǔlì","nghia":"Cố Gắng"},{"stt":701,"hantu":"女性","pinyin":"nǚxìng","nghia":"Nữ Giới, Phụ Nữ"},{"stt":702,"hantu":"歐美","pinyin":"ōuměi","nghia":"Âu Mỹ"},{"stt":703,"hantu":"歐洲","pinyin":"ōuzhōu","nghia":"Châu Âu"},{"stt":704,"hantu":"爬","pinyin":"pá","nghia":"Bò, Leo Trèo, Trèo, Leo"},{"stt":705,"hantu":"怕","pinyin":"pà","nghia":"Sợ"},{"stt":706,"hantu":"拍","pinyin":"pāi","nghia":"Chụp Ảnh, Chụp Hình"},{"stt":707,"hantu":"排隊","pinyin":"páiduì","nghia":"Xếp Hàng"},{"stt":708,"hantu":"牌子","pinyin":"páizi","nghia":"Biển Báo"},{"stt":709,"hantu":"盤","pinyin":"pán","nghia":"Họ Bàn, Khay, Mâm, Đĩa To"},{"stt":710,"hantu":"胖","pinyin":"pàng","nghia":"Mập"},{"stt":711,"hantu":"旁邊","pinyin":"páng biān","nghia":"Bên Cạnh"},{"stt":712,"hantu":"龐大","pinyin":"pángdà","nghia":"To Lớn, To, Lớn, Bự"},{"stt":713,"hantu":"龐大商","pinyin":"pángdà shāng","nghia":"Thương Số Lớn"},{"stt":714,"hantu":"盤子","pinyin":"pánzi","nghia":"Cái Đĩa, Mâm, Khay"},{"stt":715,"hantu":"跑","pinyin":"pǎo","nghia":"Chạy"},{"stt":716,"hantu":"爬山","pinyin":"Páshān","nghia":"Leo Núi"},{"stt":717,"hantu":"陪","pinyin":"péi","nghia":"Đồng Hành"},{"stt":718,"hantu":"配合","pinyin":"pèihé","nghia":"Hợp Tác"},{"stt":719,"hantu":"培養","pinyin":"péiyǎng","nghia":"Bồi Dưỡng"},{"stt":720,"hantu":"朋友","pinyin":"péngyǒu","nghia":"Bằng Hữu, Bạn Bè"},{"stt":721,"hantu":"匹","pinyin":"Pǐ","nghia":"Con (Ngựa, La, Lừa)"},{"stt":722,"hantu":"片","pinyin":"piàn","nghia":"Ấm Ảnh, Tấm Hình, Bức Hoạ"},{"stt":723,"hantu":"便宜","pinyin":"Piányí","nghia":"Rẻ"},{"stt":724,"hantu":"票","pinyin":"piào","nghia":"Vé, Phiếu, Thẻ, Hoá Đőn"},{"stt":725,"hantu":"漂亮","pinyin":"piào·liang","nghia":"Đẹp, Xinh Xắn, Xinh Đẹp"},{"stt":726,"hantu":"皮包","pinyin":"píbāo","nghia":"Túi Sách Tay, Ví Da, Cặp Da"},{"stt":727,"hantu":"啤酒","pinyin":"píjiǔ","nghia":"Bia"},{"stt":728,"hantu":"瓶","pinyin":"píng","nghia":"Bình, Lọ"},{"stt":729,"hantu":"平安","pinyin":"píng'ān","nghia":"Bình An"},{"stt":730,"hantu":"平常","pinyin":"Píngcháng","nghia":"Bình Thường"},{"stt":731,"hantu":"蘋果","pinyin":"Píngguǒ","nghia":"Quả Táo"},{"stt":732,"hantu":"品質","pinyin":"pǐnzhí","nghia":"Chất Lượng"},{"stt":733,"hantu":"破","pinyin":"pò","nghia":"Vỡ, Đứt, Thủng"},{"stt":734,"hantu":"期","pinyin":"qí","nghia":"Khoá, Kỳ Học, Kỳ"},{"stt":735,"hantu":"騎","pinyin":"qí","nghia":"Lái, Đi (Xe Đạp)"},{"stt":736,"hantu":"起","pinyin":"qǐ","nghia":"Khởi: Dậy, Thành Lập"},{"stt":737,"hantu":"七","pinyin":"qī","nghia":"Thất, Số 7"},{"stt":738,"hantu":"騎車","pinyin":"qí chē","nghia":"Đi Xe Đạp"},{"stt":739,"hantu":"前","pinyin":"qián","nghia":"Tiền: Trước"},{"stt":740,"hantu":"錢","pinyin":"qián","nghia":"Tiền"},{"stt":741,"hantu":"千","pinyin":"qiān","nghia":"Thiên: Nghìn, Trời"},{"stt":742,"hantu":"鉛筆","pinyin":"qiānbǐ","nghia":"Bút Chì"},{"stt":743,"hantu":"前邊","pinyin":"Qiánbian","nghia":"Mặt Trước"},{"stt":744,"hantu":"牆","pinyin":"qiáng","nghia":"Tường"},{"stt":745,"hantu":"前面","pinyin":"Qiánmiàn","nghia":"Đằng Trước"},{"stt":746,"hantu":"橋","pinyin":"qiáo","nghia":"Kiều: Họ Kiều, Cây Cầu"},{"stt":747,"hantu":"巧克力","pinyin":"Qiǎokèlì","nghia":"Sô Cô La"},{"stt":748,"hantu":"汽車","pinyin":"qìchē","nghia":"Xe Ô Tô, Xe Hơi"},{"stt":749,"hantu":"起床","pinyin":"Qǐchuáng","nghia":"Thức Dậy"},{"stt":750,"hantu":"起飛","pinyin":"qǐfēi","nghia":"Máy Bay Cất Cánh"},{"stt":751,"hantu":"奇怪","pinyin":"qíguài","nghia":"Sự Xa Lạ, Kỳ Quái"},{"stt":752,"hantu":"起來","pinyin":"Qǐlái","nghia":"Đứng Lên"},{"stt":753,"hantu":"親","pinyin":"qīn","nghia":"Thân: Họ Hàng, Ruột Thịt: Hôn"},{"stt":754,"hantu":"請","pinyin":"qǐng","nghia":"Mời"},{"stt":755,"hantu":"輕","pinyin":"qīng","nghia":"Nhẹ: Nhẹ Nhàng, Thoải Mái"},{"stt":756,"hantu":"青菜","pinyin":"qīngcài","nghia":"Rau Xanh"},{"stt":757,"hantu":"清楚","pinyin":"qīngchǔ","nghia":"Rõ Ràng, Mạch Lạc"},{"stt":758,"hantu":"請假","pinyin":"qǐngjià","nghia":"Xin Phép"},{"stt":759,"hantu":"情境","pinyin":"Qíngjìng","nghia":"Tình Huống"},{"stt":760,"hantu":"請客","pinyin":"qǐngkè","nghia":"Mời Khách"},{"stt":761,"hantu":"輕鬆","pinyin":"qīngsōng","nghia":"Nhẹ Nhõm, Ung Dung, Thoải Mái"},{"stt":762,"hantu":"晴天","pinyin":"qíngtiān","nghia":"Trời Trong, Trời Nắng Đẹp"},{"stt":763,"hantu":"請問","pinyin":"qǐngwèn","nghia":"Xin Hỏi"},{"stt":764,"hantu":"慶祝","pinyin":"qìngzhù","nghia":"Chúc Mừng, Chào Mừng"},{"stt":765,"hantu":"汽水","pinyin":"qìshuǐ","nghia":"Nước Có Ga, Nước Ngọt"},{"stt":766,"hantu":"球","pinyin":"Qiú","nghia":"Cầu, Bóng"},{"stt":767,"hantu":"求","pinyin":"qiú","nghia":"Cứu, Cầu Cứu"},{"stt":768,"hantu":"秋天","pinyin":"qiūtiān","nghia":"Mùa Thu"},{"stt":769,"hantu":"企業","pinyin":"qǐyè","nghia":"Doanh Nghiệp"},{"stt":770,"hantu":"去","pinyin":"qù","nghia":"Khứ: Mất Đi, Không Còn, Rời Bỏ, Qua"},{"stt":771,"hantu":"全","pinyin":"quán","nghia":"Toàn, Họ Toàn, Toàn Bộ, Cả"},{"stt":772,"hantu":"全部","pinyin":"quánbù","nghia":"Toàn Bộ"},{"stt":773,"hantu":"全家","pinyin":"Quánjiā","nghia":"Toàn Gia, Cả Nhà"},{"stt":774,"hantu":"全民","pinyin":"quánmín","nghia":"Toàn Dân"},{"stt":775,"hantu":"確定","pinyin":"quèdìng","nghia":"Quyết Định"},{"stt":776,"hantu":"去年","pinyin":"qùnián","nghia":"Năm Ngoái"},{"stt":777,"hantu":"裙子","pinyin":"qúnzi","nghia":"Váy"},{"stt":778,"hantu":"讓","pinyin":"ràng","nghia":"Cho Phép"},{"stt":779,"hantu":"然後","pinyin":"ránhòu","nghia":"Sau Đó"},{"stt":780,"hantu":"熱","pinyin":"rè","nghia":"Nóng"},{"stt":781,"hantu":"人","pinyin":"Rén","nghia":"Con Người"},{"stt":782,"hantu":"熱鬧","pinyin":"rènào","nghia":"Sống Động, Nhộn Nhịp"},{"stt":783,"hantu":"任何","pinyin":"rènhé","nghia":"Bất Kì"},{"stt":784,"hantu":"人類","pinyin":"Rénlèi","nghia":"Nhân Loại, Con Người"},{"stt":785,"hantu":"認識","pinyin":"rènshí","nghia":"Biết, Quen Biết"},{"stt":786,"hantu":"認為","pinyin":"rènwéi","nghia":"Cho Rằng"},{"stt":787,"hantu":"認真","pinyin":"rènzhēn","nghia":"Chăm Chỉ"},{"stt":788,"hantu":"日","pinyin":"rì","nghia":"Nhật, Ngày, Mặt Trời"},{"stt":789,"hantu":"日本","pinyin":"rìběn","nghia":"Nước Nhật"},{"stt":790,"hantu":"容易","pinyin":"róngyì","nghia":"Dễ"},{"stt":791,"hantu":"肉","pinyin":"ròu","nghia":"Dễ, Dễ Dàng"},{"stt":792,"hantu":"如果","pinyin":"Rúguǒ","nghia":"Nếu Như"},{"stt":793,"hantu":"入門","pinyin":"Rùmén","nghia":"Nhập Môn,"},{"stt":794,"hantu":"傘","pinyin":"săn","nghia":"Cái Ô"},{"stt":795,"hantu":"三","pinyin":"sān","nghia":"Tam, Số 3"},{"stt":796,"hantu":"散步","pinyin":"sànbù","nghia":"Đi Bộ"},{"stt":797,"hantu":"掃地","pinyin":"sǎodì","nghia":"Quét Sàn Nhà"},{"stt":798,"hantu":"色","pinyin":"sè","nghia":"Màu Sắc"},{"stt":799,"hantu":"森林","pinyin":"sēnlín","nghia":"Rừng Sâu"},{"stt":800,"hantu":"沙發","pinyin":"shāfā","nghia":"Ghế Sô Pha"},{"stt":801,"hantu":"山","pinyin":"Shān","nghia":"Núi"},{"stt":802,"hantu":"上","pinyin":"shàng","nghia":"Thượng, Trên"},{"stt":803,"hantu":"上(面)","pinyin":"shàng（ miàn）","nghia":"Ở Trên"},{"stt":804,"hantu":"上班","pinyin":"shàngbān","nghia":"Làm Việc, Đi Làm Việc"},{"stt":805,"hantu":"商店","pinyin":"shāngdiàn","nghia":"Cửa Hàng, Hiệu Buôn"},{"stt":806,"hantu":"上課","pinyin":"Shàngkè","nghia":"Học Bài, Tham Dự Lớp Học"},{"stt":807,"hantu":"上來","pinyin":"shànglái","nghia":"Đi Lên, Bắt Đầu, Khởi Đầu"},{"stt":808,"hantu":"商品","pinyin":"shāngpǐn","nghia":"Hàng Hóa, Thương Phẩm"},{"stt":809,"hantu":"上去","pinyin":"shàngqù","nghia":"Đi Lên (Đi Từ Thấp Lên Cao)"},{"stt":810,"hantu":"上網","pinyin":"shàngwǎng","nghia":"Lên Mạng"},{"stt":811,"hantu":"上午","pinyin":"shàngwŭ","nghia":"Buổi Sáng"},{"stt":812,"hantu":"傷心","pinyin":"shāngxīn","nghia":"Buồn, Thương Tâm"},{"stt":813,"hantu":"上學","pinyin":"shàngxué","nghia":"Đến Trường, Đi Học"},{"stt":814,"hantu":"少","pinyin":"shǎo","nghia":"Thiếu: Ít, Thiết"},{"stt":815,"hantu":"誰","pinyin":"shéi","nghia":"Người Nào Đó"},{"stt":816,"hantu":"什麼","pinyin":"shéme","nghia":"Cái Gì, Gì Đó: Đại Từ Nghi Vấn"},{"stt":817,"hantu":"剩","pinyin":"shèng","nghia":"Thừa Lại, Còn Lại"},{"stt":818,"hantu":"生","pinyin":"Shēng","nghia":"Sinh Ra, Sinh Đẻ, Sinh"},{"stt":819,"hantu":"省錢","pinyin":"shěng qián","nghia":"Tiết Kiệm Tiền"},{"stt":820,"hantu":"生病","pinyin":"shēngbìng","nghia":"Bị Ốm"},{"stt":821,"hantu":"生活","pinyin":"shēnghuó","nghia":"Đời Sống, Cuộc Sống"},{"stt":822,"hantu":"生氣","pinyin":"shēngqì","nghia":"Tức Giận"},{"stt":823,"hantu":"生日","pinyin":"Shēngrì","nghia":"Sinh Nhật"},{"stt":824,"hantu":"聲音","pinyin":"shēngyīn","nghia":"Âm Thanh, Tiếng Động"},{"stt":825,"hantu":"身體","pinyin":"shēntǐ","nghia":"Thân Hình, Bản Thân, Sức Khỏe"},{"stt":826,"hantu":"十","pinyin":"shí","nghia":"Thập, Mười, Số 10"},{"stt":827,"hantu":"食","pinyin":"shí","nghia":"Thực, Thức Ăn"},{"stt":828,"hantu":"實","pinyin":"shí","nghia":"Thực, Thật, Chân Thật"},{"stt":829,"hantu":"是","pinyin":"shì","nghia":"Rằng Thì Mà Là Ở…"},{"stt":830,"hantu":"事","pinyin":"shì","nghia":"Sự Tình, Công Việc, Việc"},{"stt":831,"hantu":"試","pinyin":"shì","nghia":"Thử"},{"stt":832,"hantu":"試穿","pinyin":"shì chuān","nghia":"Mặc Thử"},{"stt":833,"hantu":"市場","pinyin":"shìchǎng","nghia":"Chợ"},{"stt":834,"hantu":"時候","pinyin":"shíhòu","nghia":"Thời Gian, Lúc Khi"},{"stt":835,"hantu":"實際","pinyin":"shíjì","nghia":"Thật Sự"},{"stt":836,"hantu":"時間","pinyin":"shíjiān","nghia":"Thời Gian, Giờ"},{"stt":837,"hantu":"世界","pinyin":"shìjiè","nghia":"Thế Giới"},{"stt":838,"hantu":"事情","pinyin":"shìqíng","nghia":"Sự Tình, Vấn Đề"},{"stt":839,"hantu":"石頭","pinyin":"shítou","nghia":"Cục Đá, Mô Đá"},{"stt":840,"hantu":"食物","pinyin":"shíwù","nghia":"Đồ Ăn"},{"stt":841,"hantu":"試用","pinyin":"shìyòng","nghia":"Thử, Dùng Thử"},{"stt":842,"hantu":"使用","pinyin":"shǐyòng","nghia":"Sử Dụng"},{"stt":843,"hantu":"室友","pinyin":"Shìyǒu","nghia":"Bạn Cùng Phòng"},{"stt":844,"hantu":"時鐘","pinyin":"shízhōng","nghia":"Đồng Hồ Báo Thức"},{"stt":845,"hantu":"十字路口","pinyin":"shízìlù kǒu","nghia":"Ngã Tư Đường"},{"stt":846,"hantu":"瘦","pinyin":"shòu","nghia":"Gầy, Còm"},{"stt":847,"hantu":"手","pinyin":"shǒu","nghia":"Thủ, Tay"},{"stt":848,"hantu":"收","pinyin":"shōu","nghia":"Nhận Được"},{"stt":849,"hantu":"手錶","pinyin":"shǒubiǎo","nghia":"Đồng Hồ Đeo Tay"},{"stt":850,"hantu":"手機","pinyin":"Shǒujī","nghia":"Điện Thoại Di Động"},{"stt":851,"hantu":"受傷","pinyin":"shòushāng","nghia":"Bị Thương"},{"stt":852,"hantu":"手套","pinyin":"shǒutào","nghia":"Găng Tay"},{"stt":853,"hantu":"手指","pinyin":"shǒuzhǐ","nghia":"Ngón Tay"},{"stt":854,"hantu":"樹","pinyin":"Shù","nghia":"Cây"},{"stt":855,"hantu":"數","pinyin":"shǔ","nghia":"Số, Con Số"},{"stt":856,"hantu":"書","pinyin":"shū","nghia":"Thư: Sách"},{"stt":857,"hantu":"衰老","pinyin":"shuāilǎo","nghia":"Già Yếu"},{"stt":858,"hantu":"雙","pinyin":"shuāng","nghia":"Đôi, Hai (Lượng Từ)"},{"stt":859,"hantu":"刷牙","pinyin":"shuāyá","nghia":"Đánh Răng"},{"stt":860,"hantu":"書包","pinyin":"shūbāo","nghia":"Cặp Sách"},{"stt":861,"hantu":"書店","pinyin":"shūdiàn","nghia":"Cửa Hàng Sách"},{"stt":862,"hantu":"書法","pinyin":"shūfǎ","nghia":"Thư Pháp"},{"stt":863,"hantu":"舒服","pinyin":"shūfú","nghia":"Thoải Mái"},{"stt":864,"hantu":"水","pinyin":"shuǐ","nghia":"Nước"},{"stt":865,"hantu":"水果","pinyin":"shuǐguǒ","nghia":"Trái Cây"},{"stt":866,"hantu":"睡覺","pinyin":"Shuìjiào","nghia":"Ngủ"},{"stt":867,"hantu":"水餃","pinyin":"shuǐjiǎo","nghia":"Bánh Sủi Cảo"},{"stt":868,"hantu":"暑假","pinyin":"shǔjià","nghia":"Kì Nghỉ Hè"},{"stt":869,"hantu":"順利","pinyin":"shùnlì","nghia":"Thuận Lợi"},{"stt":870,"hantu":"說","pinyin":"shuō","nghia":"Thuyết: Nói, Kể"},{"stt":871,"hantu":"說話","pinyin":"Shuōhuà","nghia":"Nói Chuyện"},{"stt":872,"hantu":"數學","pinyin":"shùxué","nghia":"Toán Học"},{"stt":873,"hantu":"書桌","pinyin":"shūzhuō","nghia":"Bàn Học"},{"stt":874,"hantu":"數字","pinyin":"shùzì","nghia":"Con Số"},{"stt":875,"hantu":"四","pinyin":"sì","nghia":"Tứ, Số 4"},{"stt":876,"hantu":"思考","pinyin":"sīkǎo","nghia":"Suy Nghĩ, Suy Xét"},{"stt":877,"hantu":"送","pinyin":"sòng","nghia":"Tặng"},{"stt":878,"hantu":"送給","pinyin":"sòng gěi","nghia":"Gửi Đến"},{"stt":879,"hantu":"算","pinyin":"suàn","nghia":"Toán: Tính Toán"},{"stt":880,"hantu":"酸","pinyin":"suān","nghia":"Chua, Acid"},{"stt":881,"hantu":"酸辣湯","pinyin":"suān là tāng","nghia":"Canh Chua Cay"},{"stt":882,"hantu":"歲","pinyin":"Suì","nghia":"Tuế: Tuổi, Tuỏi Tác"},{"stt":883,"hantu":"隨便","pinyin":"suíbiàn","nghia":"Tuỳ Thích, Tuỳ Ý"},{"stt":884,"hantu":"雖然","pinyin":"suīrán","nghia":"Mặc Dù"},{"stt":885,"hantu":"所以","pinyin":"Suǒyǐ","nghia":"Cho Nên, Sở Dĩ"},{"stt":886,"hantu":"所有","pinyin":"suǒyǒu","nghia":"Tất Cả, Toàn Bộ"},{"stt":887,"hantu":"宿舍","pinyin":"sùshè","nghia":"Ký Túc Xá"},{"stt":888,"hantu":"他","pinyin":"tā","nghia":"Anh Ấy (Ngôi Thứ Ba)"},{"stt":889,"hantu":"她","pinyin":"tā","nghia":"Cô Ấy (Ngôi Thứ Ba)"},{"stt":890,"hantu":"它","pinyin":"tā","nghia":"Nó, Cái Đó (Chỉ Đồ Vật, Con Vật)"},{"stt":891,"hantu":"太","pinyin":"tài","nghia":"Quá, Lắm, Rất"},{"stt":892,"hantu":"太壞","pinyin":"tài huài","nghia":"Quá Tệ"},{"stt":893,"hantu":"太少","pinyin":"tài shǎo","nghia":"Quá Ít"},{"stt":894,"hantu":"太太","pinyin":"tàitài","nghia":"Thái Thái, Vợ"},{"stt":895,"hantu":"台灣","pinyin":"Táiwān","nghia":"Đài Loan"},{"stt":896,"hantu":"太陽","pinyin":"tàiyáng","nghia":"Mặt Trời"},{"stt":897,"hantu":"談","pinyin":"tán","nghia":"Đàm, Họ Đàm: Nói Chuyện, Bàn Bạc"},{"stt":898,"hantu":"糖","pinyin":"táng","nghia":"Đường Ăn"},{"stt":899,"hantu":"躺","pinyin":"tǎng","nghia":"Nằm"},{"stt":900,"hantu":"湯","pinyin":"tāng","nghia":"Canh"},{"stt":901,"hantu":"糖醋魚","pinyin":"táng cù yú","nghia":"Cá Chua Ngọt"},{"stt":902,"hantu":"湯匙","pinyin":"tāngchí","nghia":"Muỗng Canh, Thìa, Thìa Canh, Thìa Súp"},{"stt":903,"hantu":"糖果","pinyin":"tángguǒ","nghia":"Kẹo"},{"stt":904,"hantu":"套","pinyin":"tào","nghia":"Bộ (Lượng Tử) , Bao Ngoài, Vật Bọc Ngoài"},{"stt":905,"hantu":"討論","pinyin":"Tǎolùn","nghia":"Bàn Luận, Thảo Luận"},{"stt":906,"hantu":"討厭","pinyin":"tǎoyàn","nghia":"Ghét"},{"stt":907,"hantu":"特別","pinyin":"tèbié","nghia":"Đặc Biệt"},{"stt":908,"hantu":"疼","pinyin":"téng","nghia":"Đau, Buốt, Nhức"},{"stt":909,"hantu":"踢","pinyin":"tī","nghia":"Đá"},{"stt":910,"hantu":"甜","pinyin":"Tián","nghia":"Ngọt"},{"stt":911,"hantu":"天","pinyin":"tiān","nghia":"Thiên, Trời, Không Trung, Bầu Trời, Ban Ngày, Ngày"},{"stt":912,"hantu":"天空","pinyin":"tiānkōng","nghia":"Bầu Trời"},{"stt":913,"hantu":"天氣","pinyin":"Tiānqì","nghia":"Thời Tiết"},{"stt":914,"hantu":"天天","pinyin":"tiāntiān","nghia":"Ngày Ngày, Hàng Ngày"},{"stt":915,"hantu":"條","pinyin":"tiáo","nghia":"Cái, Con (Lượng Từ)"},{"stt":916,"hantu":"跳舞","pinyin":"tiàowǔ","nghia":"Nhảy, Khiêu Vũ"},{"stt":917,"hantu":"題目","pinyin":"Tímù","nghia":"Đề Tài, Chủ Đề"},{"stt":918,"hantu":"停","pinyin":"tíng","nghia":"Đỗ, Đậu, Dừng, Ngừng"},{"stt":919,"hantu":"聽","pinyin":"tīng","nghia":"Nghe"},{"stt":920,"hantu":"聽說","pinyin":"Tīng shuō","nghia":"Nghe Nói"},{"stt":921,"hantu":"聽見","pinyin":"tīngjiàn","nghia":"Nghe Được"},{"stt":922,"hantu":"提早","pinyin":"tízǎo","nghia":"Trước Thời Gian, Trước Thời Hạn, Sớm Hơn"},{"stt":923,"hantu":"痛","pinyin":"tòng","nghia":"Đau, Bị Đau"},{"stt":924,"hantu":"同事","pinyin":"tóngshì","nghia":"Đồng Nghiệp"},{"stt":925,"hantu":"同學","pinyin":"tóngxué","nghia":"Bạn Học"},{"stt":926,"hantu":"通知","pinyin":"tōngzhī","nghia":"Thông Báo"},{"stt":927,"hantu":"頭","pinyin":"tóu","nghia":"Đầu"},{"stt":928,"hantu":"偷","pinyin":"tōu","nghia":"Ăn Trộm, Ăn Cắp"},{"stt":929,"hantu":"頭髮","pinyin":"tóufǎ","nghia":"Tóc"},{"stt":930,"hantu":"團","pinyin":"tuán","nghia":"Đoàn, Đoàn Người"},{"stt":931,"hantu":"腿","pinyin":"tuǐ","nghia":"Cái Chân"},{"stt":932,"hantu":"推","pinyin":"tuī","nghia":"Đẩy, Đùn"},{"stt":933,"hantu":"退休","pinyin":"tuìxiū","nghia":"Về Hưu, Nghỉ Hưu"},{"stt":934,"hantu":"圖片","pinyin":"Túpiàn","nghia":"Hình Ảnh"},{"stt":935,"hantu":"圖書館","pinyin":"Túshū guǎn","nghia":"Thư Viện"},{"stt":936,"hantu":"外","pinyin":"wài","nghia":"Ngoài, Ở Ngoài, Bên Ngoài"},{"stt":937,"hantu":"外國","pinyin":"Wàiguó","nghia":"Nước Ngoài"},{"stt":938,"hantu":"外面","pinyin":"wàimiàn","nghia":"Ngoài, Quần Chúng"},{"stt":939,"hantu":"外套","pinyin":"wàitào","nghia":"Áo Choàng"},{"stt":940,"hantu":"玩","pinyin":"wán","nghia":"Chơi, Đùa, Chơi Đùa"},{"stt":941,"hantu":"完","pinyin":"wán","nghia":"Xong Việc, Làm Xong Việc, Hết"},{"stt":942,"hantu":"萬","pinyin":"Wàn","nghia":"Vạn, 10.000."},{"stt":943,"hantu":"碗","pinyin":"wǎn","nghia":"Bát"},{"stt":944,"hantu":"晚","pinyin":"wǎn","nghia":"Đêm"},{"stt":945,"hantu":"碗盤","pinyin":"wǎn pán","nghia":"Bát Đĩa"},{"stt":946,"hantu":"玩樂器","pinyin":"wán yuè qì","nghia":"Máy Chơi Game"},{"stt":947,"hantu":"晚安","pinyin":"wănān","nghia":"Chúc Ngủ Ngon (Lời Nói Khách Sáo)"},{"stt":948,"hantu":"晚餐","pinyin":"wǎncān","nghia":"Bữa Tối"},{"stt":949,"hantu":"晚飯","pinyin":"wănfàn","nghia":"Bữa Tối"},{"stt":950,"hantu":"忘","pinyin":"wàng","nghia":"Quên"},{"stt":951,"hantu":"往","pinyin":"wǎng","nghia":"Tới, Hướng Tới"},{"stt":952,"hantu":"網路","pinyin":"wǎng lù","nghia":"Trên Mạng, Mạng Internet"},{"stt":953,"hantu":"網買","pinyin":"wǎng mǎi","nghia":"Mua Sắm Trực Tuyến"},{"stt":954,"hantu":"網球","pinyin":"wǎngqiú","nghia":"Quần Vợt"},{"stt":955,"hantu":"網站","pinyin":"wǎngzhàn","nghia":"Website"},{"stt":956,"hantu":"晚會","pinyin":"Wǎnhuì","nghia":"Buổi Tiệc"},{"stt":957,"hantu":"晚上","pinyin":"Wǎnshàng","nghia":"Đêm, Tối"},{"stt":958,"hantu":"襪子","pinyin":"wàzi","nghia":"Bít Tất"},{"stt":959,"hantu":"唯","pinyin":"wéi","nghia":"Duy, Chỉ, Riêng Chỉ"},{"stt":960,"hantu":"為","pinyin":"wèi","nghia":"Vị: Giúp Đỡ, Vì , Làm, Để"},{"stt":961,"hantu":"位","pinyin":"Wèi","nghia":"Vị, Địa Vị, Chức Vị"},{"stt":962,"hantu":"為主","pinyin":"wéi zhǔ","nghia":"Làm Chủ"},{"stt":963,"hantu":"味道","pinyin":"wèidào","nghia":"Mùi"},{"stt":964,"hantu":"未來","pinyin":"wèilái","nghia":"Tương Lai"},{"stt":965,"hantu":"為什麼","pinyin":"wèishéme","nghia":"Tại Làm Sao"},{"stt":966,"hantu":"危險","pinyin":"wéixiǎn","nghia":"Sự Nguy Hiểm"},{"stt":967,"hantu":"聞","pinyin":"wén","nghia":"Ngửi (Mùi)"},{"stt":968,"hantu":"問","pinyin":"Wèn","nghia":"Vấn: Hỏi"},{"stt":969,"hantu":"溫度","pinyin":"wēndù","nghia":"Nhiệt Độ"},{"stt":970,"hantu":"溫暖","pinyin":"wēnnuǎn","nghia":"Sự Ấm Áp"},{"stt":971,"hantu":"問題","pinyin":"wèntí","nghia":"Vấn Đề"},{"stt":972,"hantu":"文章","pinyin":"Wénzhāng","nghia":"Bài Báo, Đoạn Văn"},{"stt":973,"hantu":"我","pinyin":"wǒ","nghia":"Tôi"},{"stt":974,"hantu":"五","pinyin":"wŭ","nghia":"Ngũ: Số 5"},{"stt":975,"hantu":"屋","pinyin":"wū","nghia":"Phòng, Buồng"},{"stt":976,"hantu":"午餐","pinyin":"wǔcān","nghia":"Bữa Trưa"},{"stt":977,"hantu":"午飯","pinyin":"wŭfàn","nghia":"Bữa Trưa"},{"stt":978,"hantu":"舞會","pinyin":"wǔhuì","nghia":"Vũ Hội"},{"stt":979,"hantu":"無聊","pinyin":"wúliáo","nghia":"Nhạt Nhẽo"},{"stt":980,"hantu":"洗","pinyin":"xǐ","nghia":"Rửa, Giặt, Gột, Tẩy"},{"stt":981,"hantu":"西","pinyin":"xī","nghia":"Tây, Phía Tây"},{"stt":982,"hantu":"下雪","pinyin":"xià xuě","nghia":"Tuyết"},{"stt":983,"hantu":"下雨","pinyin":"xià yǔ","nghia":"Mưa Rơi"},{"stt":984,"hantu":"下(面)","pinyin":"xià（ miàn）","nghia":"Bên Dưới"},{"stt":985,"hantu":"下班","pinyin":"xiàbān","nghia":"Tan Sở, Tan Giờ Làm"},{"stt":986,"hantu":"下課","pinyin":"Xiàkè","nghia":"Tan Học"},{"stt":987,"hantu":"鹹","pinyin":"xián","nghia":"Mặn"},{"stt":988,"hantu":"先","pinyin":"xiān","nghia":"Tiên: Trước, Tiên (Thời Gian, Thứ Tự)。"},{"stt":989,"hantu":"鹹蛋苦瓜","pinyin":"xián dàn kǔguā","nghia":"Khổ Qua Trứng Muối"},{"stt":990,"hantu":"像","pinyin":"xiàng","nghia":"Như, Giống Như"},{"stt":991,"hantu":"向","pinyin":"xiàng","nghia":"Hướng: Họ Hướng: Nhìn Về, Hướng Về"},{"stt":992,"hantu":"想","pinyin":"xiǎng","nghia":"Muốn, Cần"},{"stt":993,"hantu":"香","pinyin":"xiāng","nghia":"Thơm"},{"stt":994,"hantu":"箱（子）","pinyin":"xiāng（ zi）","nghia":"Hòm, Rương"},{"stt":995,"hantu":"想法","pinyin":"Xiǎngfǎ","nghia":"Ý Tưởng"},{"stt":996,"hantu":"相符","pinyin":"xiāngfú","nghia":"Phù Hợp, Hợp Nhau"},{"stt":997,"hantu":"香蕉","pinyin":"xiāngjiāo","nghia":"Chuối"},{"stt":998,"hantu":"香味","pinyin":"xiāngwèi","nghia":"Hương Thơm"},{"stt":999,"hantu":"鄉下","pinyin":"xiāngxià","nghia":"Nông Thôn"},{"stt":1000,"hantu":"相信","pinyin":"xiāngxìn","nghia":"Tin Tưởng"},{"stt":1001,"hantu":"先生","pinyin":"Xiānshēng","nghia":"Tiên Sinh, Ngài, Ông"},{"stt":1002,"hantu":"現象","pinyin":"Xiànxiàng","nghia":"Hiện Tượng"},{"stt":1003,"hantu":"現在","pinyin":"xiànzài","nghia":"Hiện Nay"},{"stt":1004,"hantu":"笑","pinyin":"xiào","nghia":"Tiếu: Cười"},{"stt":1005,"hantu":"消費","pinyin":"xiāofèi","nghia":"Tiêu Dùng"},{"stt":1006,"hantu":"小孩","pinyin":"xiǎohái","nghia":"Trẻ Nhỏ"},{"stt":1007,"hantu":"笑話","pinyin":"xiàohuà","nghia":"Chuyện Cười"},{"stt":1008,"hantu":"小姐","pinyin":"Xiǎojiě","nghia":"Tiểu Thư, Con Gái"},{"stt":1009,"hantu":"小時","pinyin":"xiǎoshí","nghia":"Giờ Đồng Hồ (60 Phút)"},{"stt":1010,"hantu":"小說","pinyin":"xiǎoshuō","nghia":"Cuốn Tiểu Thuyết"},{"stt":1011,"hantu":"小偷","pinyin":"xiăotōu","nghia":"Tên Trộm, Kẻ Cắp, Kẻ Trộm"},{"stt":1012,"hantu":"消息","pinyin":"xiāoxī","nghia":"Thông Tin"},{"stt":1013,"hantu":"小心","pinyin":"xiǎoxīn","nghia":"Cẩn Thận"},{"stt":1014,"hantu":"小學","pinyin":"xiăoxué","nghia":"Tiểu Học, Cấp 1"},{"stt":1015,"hantu":"校長","pinyin":"Xiàozhǎng","nghia":"Hiệu Trưởng"},{"stt":1016,"hantu":"下去","pinyin":"xiàqù","nghia":"Xuống Phía Dưới, Đi Xuống"},{"stt":1017,"hantu":"夏天","pinyin":"xiàtiān","nghia":"Mùa Hè"},{"stt":1018,"hantu":"下午","pinyin":"xiàwŭ","nghia":"Buổi Chiều"},{"stt":1019,"hantu":"謝","pinyin":"xiè","nghia":"Tạ, Họ Tạ: Cảm Ơn"},{"stt":1020,"hantu":"些","pinyin":"Xiē","nghia":"Một Ít, Một Vài"},{"stt":1021,"hantu":"寫","pinyin":"xiě","nghia":"Viết"},{"stt":1022,"hantu":"謝謝","pinyin":"xièxiè","nghia":"Cảm Ơn"},{"stt":1023,"hantu":"鞋子","pinyin":"Xiézi","nghia":"Giày"},{"stt":1024,"hantu":"西瓜","pinyin":"xīguā","nghia":"Dươi Hấu"},{"stt":1025,"hantu":"習慣","pinyin":"xíguàn","nghia":"Thói Quen"},{"stt":1026,"hantu":"喜歡","pinyin":"xǐhuān","nghia":"Yêu Thích, Thích"},{"stt":1027,"hantu":"信","pinyin":"xìn","nghia":"Tín: Thư"},{"stt":1028,"hantu":"心","pinyin":"xīn","nghia":"Tâm, Trái Tim, Tim"},{"stt":1029,"hantu":"新","pinyin":"xīn","nghia":"Tân: Mới"},{"stt":1030,"hantu":"信封","pinyin":"xìnfēng","nghia":"Phong Bì"},{"stt":1031,"hantu":"行","pinyin":"xíng","nghia":"Hàng, Hàng Lối, Dòng, Được, Có Thể, Đồng Ý"},{"stt":1032,"hantu":"姓","pinyin":"xìng","nghia":"Tính: Họ"},{"stt":1033,"hantu":"醒","pinyin":"xǐng","nghia":"Thức Giấc"},{"stt":1034,"hantu":"幸福","pinyin":"xìngfú","nghia":"Hạnh Phúc"},{"stt":1035,"hantu":"性格","pinyin":"xìnggé","nghia":"Tính Cách"},{"stt":1036,"hantu":"行李","pinyin":"Xínglǐ","nghia":"Hành Lý"},{"stt":1037,"hantu":"星期","pinyin":"xīngqí","nghia":"Tuần, Thứ Trong Tuần"},{"stt":1038,"hantu":"星期日","pinyin":"xīngqírì","nghia":"Ngày Chủ Nhật"},{"stt":1039,"hantu":"星期天","pinyin":"xīngqítiān","nghia":"Ngày Chủ Nhật"},{"stt":1040,"hantu":"興趣","pinyin":"Xìngqù","nghia":"Quan Tâm"},{"stt":1041,"hantu":"星星","pinyin":"xīngxing","nghia":"Đốm Nhỏ, Chấm Nhỏ"},{"stt":1042,"hantu":"辛苦","pinyin":"xīnkǔ","nghia":"Vất Vả, Khổ Nhọc"},{"stt":1043,"hantu":"新年","pinyin":"xīnnián","nghia":"Năm Mới"},{"stt":1044,"hantu":"心情","pinyin":"Xīnqíng","nghia":"Cảm Giác, Tâm Tình"},{"stt":1045,"hantu":"新聞","pinyin":"xīnwén","nghia":"Tin Tức"},{"stt":1046,"hantu":"新鮮","pinyin":"xīnxiān","nghia":"Tươi"},{"stt":1047,"hantu":"信用卡","pinyin":"xìnyòngkǎ","nghia":"Thẻ Tín Dụng"},{"stt":1048,"hantu":"洗手間","pinyin":"xǐshǒujiān","nghia":"Phòng Vệ Sinh"},{"stt":1049,"hantu":"修","pinyin":"xiū","nghia":"Tu, Sửa Chữa, Chỉnh Đốn"},{"stt":1050,"hantu":"休息","pinyin":"Xiūxí","nghia":"Nghỉ Ngơi"},{"stt":1051,"hantu":"希望","pinyin":"Xīwàng","nghia":"Mong, Hy Vọng"},{"stt":1052,"hantu":"洗衣機","pinyin":"xǐyījī","nghia":"Máy Giặt"},{"stt":1053,"hantu":"吸引","pinyin":"xīyǐn","nghia":"Hấp Dẫn, Thu Hút。"},{"stt":1054,"hantu":"洗澡","pinyin":"xǐzǎo","nghia":"Tắm, Tắm Rửa"},{"stt":1055,"hantu":"選","pinyin":"Xuǎn","nghia":"Lựa Chọn"},{"stt":1056,"hantu":"選擇","pinyin":"xuǎnzé","nghia":"Lựa Chọn"},{"stt":1057,"hantu":"許多","pinyin":"xǔduō","nghia":"Nhiều, Rất Nhiều"},{"stt":1058,"hantu":"學","pinyin":"xué","nghia":"Học, Đi Học"},{"stt":1059,"hantu":"雪","pinyin":"xuě","nghia":"Tuyết"},{"stt":1060,"hantu":"學費","pinyin":"xuéfèi","nghia":"Học Phí"},{"stt":1061,"hantu":"學會","pinyin":"Xuéhuì","nghia":"Học Thành, Đã Học Được"},{"stt":1062,"hantu":"學期","pinyin":"xuéqí","nghia":"Học Kỳ"},{"stt":1063,"hantu":"學生","pinyin":"Xuéshēng","nghia":"Học Sinh, Sinh Viên"},{"stt":1064,"hantu":"學習","pinyin":"Xuéxí","nghia":"Học Tập"},{"stt":1065,"hantu":"學校","pinyin":"Xuéxiào","nghia":"Trường Học"},{"stt":1066,"hantu":"學院","pinyin":"xuéyuàn","nghia":"Trường Cao Đẳng, Học Viện"},{"stt":1067,"hantu":"需要","pinyin":"xūyào","nghia":"Nhu Cầu, Cần"},{"stt":1068,"hantu":"言","pinyin":"yán","nghia":"Ngôn, Lời Nói"},{"stt":1069,"hantu":"演變","pinyin":"yǎnbiàn","nghia":"Diễn Biến, Phát Triển Biến Hoá"},{"stt":1070,"hantu":"羊","pinyin":"yáng","nghia":"Dương, Họ Dương: Dê Cừu"},{"stt":1071,"hantu":"羊肉","pinyin":"Yángròu","nghia":"Thịt Cừu"},{"stt":1072,"hantu":"養生","pinyin":"yǎngshēng","nghia":"Dưỡng Sinh"},{"stt":1073,"hantu":"樣子","pinyin":"yàngzi","nghia":"Hình Dạng, Kiểu Dáng"},{"stt":1074,"hantu":"延緩","pinyin":"yánhuǎn","nghia":"Trì Hoãn"},{"stt":1075,"hantu":"眼鏡","pinyin":"Yǎnjìng","nghia":"Kính Mắt"},{"stt":1076,"hantu":"眼睛","pinyin":"yănjīng","nghia":"Mắt, Con Mắt"},{"stt":1077,"hantu":"顏色","pinyin":"yánsè","nghia":"Màu Sắc"},{"stt":1078,"hantu":"藥","pinyin":"yào","nghia":"Thuốc"},{"stt":1079,"hantu":"要","pinyin":"yào","nghia":"Muốn, Cần"},{"stt":1080,"hantu":"藥房","pinyin":"yàofáng","nghia":"Tiệm Thuốc"},{"stt":1081,"hantu":"邀請","pinyin":"yāoqǐng","nghia":"Mời"},{"stt":1082,"hantu":"鑰匙","pinyin":"yàoshi","nghia":"Chìa Khóa"},{"stt":1083,"hantu":"要是","pinyin":"yàoshì","nghia":"Nếu Như, Nếu"},{"stt":1084,"hantu":"牙刷","pinyin":"yáshuā","nghia":"Bàn Chải Đánh Răng"},{"stt":1085,"hantu":"也","pinyin":"yě","nghia":"Thì, Cũng, Vẫn"},{"stt":1086,"hantu":"夜裡","pinyin":"yèlǐ","nghia":"Vào Ban Đêm"},{"stt":1087,"hantu":"也許","pinyin":"yěxŭ","nghia":"Hay Là, E Rằng, Biết Đâu, May Ra, Có Lẽ。"},{"stt":1088,"hantu":"爺爺","pinyin":"yéye","nghia":"Ông Nội"},{"stt":1089,"hantu":"以","pinyin":"yǐ","nghia":"Để, Nhằm。"},{"stt":1090,"hantu":"衣櫥","pinyin":"yī chú","nghia":"Tủ Quần Áo"},{"stt":1091,"hantu":"一","pinyin":"yī；yí；yì","nghia":"Số Một, Nhất, Một"},{"stt":1092,"hantu":"一半","pinyin":"yíbàn","nghia":"Một Nửa"},{"stt":1093,"hantu":"一邊","pinyin":"yìbiān","nghia":"Một Mặt, Mặt Bên, Một Bên"},{"stt":1094,"hantu":"一點","pinyin":"yìdiăn","nghia":"Một Chút, Một Ít"},{"stt":1095,"hantu":"一定","pinyin":"yídìng","nghia":"Nhất Định"},{"stt":1096,"hantu":"衣服","pinyin":"yīfú","nghia":"Quần Áo, Y Phục"},{"stt":1097,"hantu":"一共","pinyin":"Yīgòng","nghia":"Tổng Cộng"},{"stt":1098,"hantu":"以後","pinyin":"yǐhòu","nghia":"Sau Này, Về Sau"},{"stt":1099,"hantu":"一會","pinyin":"yìhuǐ","nghia":"Một Chốc, Một Lát (Chỉ Thời Gian)"},{"stt":1100,"hantu":"意見","pinyin":"yìjiàn","nghia":"Ý Kiến"},{"stt":1101,"hantu":"已經","pinyin":"Yǐjīng","nghia":"Đã, Đã Từng"},{"stt":1102,"hantu":"應該","pinyin":"yīnggāi","nghia":"Nên"},{"stt":1103,"hantu":"英國","pinyin":"Yīngguó","nghia":"Vương Quốc Anh"},{"stt":1104,"hantu":"英文","pinyin":"yingwén","nghia":"Tiếng Anh"},{"stt":1105,"hantu":"影響","pinyin":"yǐngxiǎng","nghia":"Ảnh Hưởng"},{"stt":1106,"hantu":"營養","pinyin":"yíngyǎng","nghia":"Dinh Dưỡng"},{"stt":1107,"hantu":"銀行","pinyin":"yínháng","nghia":"Ngân Hàng"},{"stt":1108,"hantu":"飲料","pinyin":"yǐnliào","nghia":"Ước Uống, Đồ Uống"},{"stt":1109,"hantu":"飲食","pinyin":"yǐnshí","nghia":"Thức Ăn"},{"stt":1110,"hantu":"陰天","pinyin":"yīntiān","nghia":"Trời Âm U, Ngày Tối Trời"},{"stt":1111,"hantu":"因為","pinyin":"Yīnwèi","nghia":"Bởi Vì"},{"stt":1112,"hantu":"音樂","pinyin":"yīnyuè","nghia":"Âm Nhạc"},{"stt":1113,"hantu":"一起","pinyin":"yīqǐ","nghia":"Cùng Nhau"},{"stt":1114,"hantu":"以前","pinyin":"Yǐqián","nghia":"Trước Kia"},{"stt":1115,"hantu":"醫生","pinyin":"yīshēng","nghia":"Bác Sĩ"},{"stt":1116,"hantu":"意思","pinyin":"yìsi","nghia":"Ỵ́, Ý Nghĩa"},{"stt":1117,"hantu":"以為","pinyin":"yǐwéi","nghia":"Nghĩ, Cho Rằng"},{"stt":1118,"hantu":"一下","pinyin":"yíxià","nghia":"Một Tý, Thử Xem, Một Cái"},{"stt":1119,"hantu":"一些","pinyin":"yìxiē","nghia":"Một Ít, Một Số, Một Phần (Chỉ Số Lượng Không Xác Định)"},{"stt":1120,"hantu":"醫學","pinyin":"yīxué","nghia":"Y Học"},{"stt":1121,"hantu":"一樣","pinyin":"Yīyàng","nghia":"Như Nhau"},{"stt":1122,"hantu":"醫藥","pinyin":"yīyào","nghia":"Thuốc Y Học"},{"stt":1123,"hantu":"醫院","pinyin":"Yīyuàn","nghia":"Bệnh Viện"},{"stt":1124,"hantu":"一直","pinyin":"Yīzhí","nghia":"Luôn Luôn, Suốt, Liên Tục"},{"stt":1125,"hantu":"椅子","pinyin":"yǐzi","nghia":"Cái Ghế"},{"stt":1126,"hantu":"用","pinyin":"yòng","nghia":"Dùng, Sử Dụng"},{"stt":1127,"hantu":"勇敢","pinyin":"yǒnggǎn","nghia":"Can Đảm, Dũng Cảm"},{"stt":1128,"hantu":"永遠","pinyin":"yǒngyuǎn","nghia":"Mãi Mãi, Vĩnh Viễn"},{"stt":1129,"hantu":"油","pinyin":"yóu","nghia":"Dầu, Mỡ (Của Thực Vật Và Động Vật.)"},{"stt":1130,"hantu":"右","pinyin":"yòu","nghia":"Bên Phải"},{"stt":1131,"hantu":"又","pinyin":"yòu","nghia":"Lại, Vừa... Lại"},{"stt":1132,"hantu":"有","pinyin":"yǒu","nghia":"Hữu, Có, Sở Hữu"},{"stt":1133,"hantu":"有(的)時候","pinyin":"yǒu(de) shíhòu","nghia":"Có Đôi Khi"},{"stt":1134,"hantu":"右邊","pinyin":"yòubiān","nghia":"Phải"},{"stt":1135,"hantu":"有點（兒）","pinyin":"yǒudiăn（ ér）","nghia":"Có Một Chút"},{"stt":1136,"hantu":"郵件","pinyin":"yóujiàn","nghia":"Bưu Kiện"},{"stt":1137,"hantu":"郵局","pinyin":"Yóujú","nghia":"Bưu Điện"},{"stt":1138,"hantu":"有空(兒)","pinyin":"yǒukòng（ ér）","nghia":"Có Thời Gian, Thời Gian Rảnh"},{"stt":1139,"hantu":"郵票","pinyin":"yóupiào","nghia":"Con Tem"},{"stt":1140,"hantu":"尤其","pinyin":"Yóuqí","nghia":"Nhất Là, Đặc Biệt Là, Càng"},{"stt":1141,"hantu":"有趣","pinyin":"Yǒuqù","nghia":"Thú Vị, Hứng Thú, Lý Thú"},{"stt":1142,"hantu":"遊戲","pinyin":"yóuxì","nghia":"Trò Chơi"},{"stt":1143,"hantu":"有意思","pinyin":"yǒuyìsi","nghia":"Có Ý Nghĩa, Hứng Thú"},{"stt":1144,"hantu":"游泳","pinyin":"yóuyǒng","nghia":"Bơi"},{"stt":1145,"hantu":"有用","pinyin":"yǒuyòng","nghia":"Hữu Dụng"},{"stt":1146,"hantu":"游泳池","pinyin":"yóuyǒngchí","nghia":"Hồ Bơi, Bể Bơi"},{"stt":1147,"hantu":"魚","pinyin":"Yú","nghia":"Cá"},{"stt":1148,"hantu":"雨","pinyin":"Yǔ","nghia":"Mưa"},{"stt":1149,"hantu":"遇到","pinyin":"yù dào","nghia":"Gặp Được. Gặp Phải"},{"stt":1150,"hantu":"元","pinyin":"yuán","nghia":"Đồng Tệ, Nguyên"},{"stt":1151,"hantu":"圓","pinyin":"yuán","nghia":"Tròn, Hình Tròn"},{"stt":1152,"hantu":"遠","pinyin":"yuǎn","nghia":"Viễn: Xa"},{"stt":1153,"hantu":"院（子）","pinyin":"yuàn（ zi）","nghia":"Viện, Học Viện"},{"stt":1154,"hantu":"員工","pinyin":"yuángōng","nghia":"Nhân Viên,"},{"stt":1155,"hantu":"原來","pinyin":"yuánlái","nghia":"Hóa Ra, Thành Ra, Thực Ra"},{"stt":1156,"hantu":"願意","pinyin":"yuànyì","nghia":"Sẵn Sàng, Đồng Ý"},{"stt":1157,"hantu":"原因","pinyin":"yuányīn","nghia":"Lý Do"},{"stt":1158,"hantu":"圓桌","pinyin":"yuánzhuō","nghia":"Bàn Tròn"},{"stt":1159,"hantu":"月","pinyin":"yuè","nghia":"Mặt Trăng, Tháng (Trong Năm)"},{"stt":1160,"hantu":"越","pinyin":"yuè","nghia":"Việt, Đi Qua"},{"stt":1161,"hantu":"約","pinyin":"Yuē","nghia":"Hẹn, Cuộc Hẹn"},{"stt":1162,"hantu":"越來越","pinyin":"yuè lái yuè","nghia":"Ngày Càng Ngày"},{"stt":1163,"hantu":"樂器","pinyin":"yuè qì","nghia":"Nhạc Cụ"},{"stt":1164,"hantu":"閱讀","pinyin":"yuèdú","nghia":"Đọc Hiểu"},{"stt":1165,"hantu":"語法","pinyin":"yǔfǎ","nghia":"Ngữ Pháp"},{"stt":1166,"hantu":"愉快","pinyin":"Yúkuài","nghia":"Vui Sướng"},{"stt":1167,"hantu":"雲","pinyin":"yún","nghia":"Đám Mây, Mây, Vân"},{"stt":1168,"hantu":"運動","pinyin":"yùndòng","nghia":"Vận Động"},{"stt":1169,"hantu":"雨傘","pinyin":"yǔsǎn","nghia":"Chiếc Ô"},{"stt":1170,"hantu":"於是","pinyin":"yúshì","nghia":"Sau Đó"},{"stt":1171,"hantu":"浴室","pinyin":"yùshì","nghia":"Phòng Tắm"},{"stt":1172,"hantu":"雨天","pinyin":"yŭtiān","nghia":"Ngày Mưa"},{"stt":1173,"hantu":"語言","pinyin":"yŭyán","nghia":"Ngôn Ngữ"},{"stt":1174,"hantu":"再","pinyin":"zài","nghia":"Tái: Nữa, Lại"},{"stt":1175,"hantu":"在","pinyin":"zài","nghia":"Tại, Tại Chức, Đang Giữ。"},{"stt":1176,"hantu":"再見","pinyin":"zàijiàn","nghia":"Tạm Biệt, Chào Tạm Biệt"},{"stt":1177,"hantu":"髒","pinyin":"zāng","nghia":"Bẩn, Dơ"},{"stt":1178,"hantu":"早","pinyin":"zăo","nghia":"Tảo: Sớm, Sáng Sớm, Sáng Tinh Mơ, Đầu, Trước"},{"stt":1179,"hantu":"早餐","pinyin":"zăocān","nghia":"Bữa Ăn Sáng"},{"stt":1180,"hantu":"早飯","pinyin":"zăofàn","nghia":"Bữa Ăn Sáng"},{"stt":1181,"hantu":"早上","pinyin":"zǎoshang","nghia":"Buổi Sáng"},{"stt":1182,"hantu":"雜誌","pinyin":"zázhì","nghia":"Tạp Chí"},{"stt":1183,"hantu":"增加","pinyin":"zēngjiā","nghia":"Tăng"},{"stt":1184,"hantu":"怎麼","pinyin":"zěnme","nghia":"Thế Nào, Sao, Làm Sao"},{"stt":1185,"hantu":"怎麼辦","pinyin":"zěnme bàn","nghia":"Phải Làm Sao?"},{"stt":1186,"hantu":"怎麼樣","pinyin":"zěnmeyàng","nghia":"Thế Nào, Ra Làm Sao"},{"stt":1187,"hantu":"責任","pinyin":"zérèn","nghia":"Trách Nhiệm"},{"stt":1188,"hantu":"炸雞","pinyin":"zhájī","nghia":"Món Gà Rán"},{"stt":1189,"hantu":"站","pinyin":"zhàn","nghia":"Đứng"},{"stt":1190,"hantu":"長","pinyin":"Zháng","nghia":"Trường: Dài"},{"stt":1191,"hantu":"張","pinyin":"zhāng","nghia":"Trương, Họ Trương"},{"stt":1192,"hantu":"張紙","pinyin":"zhāng zhǐ","nghia":"Tờ Giấy"},{"stt":1193,"hantu":"照","pinyin":"zhào","nghia":"Chiếu, Chiếu Rọi, Chiếu Sáng, Chụp, Quay (Phim, Ảnh)"},{"stt":1194,"hantu":"找","pinyin":"Zhǎo","nghia":"Tìm, Tìm Kiếm"},{"stt":1195,"hantu":"找到","pinyin":"zhăodào","nghia":"Tìm Được"},{"stt":1196,"hantu":"照顧","pinyin":"zhàogù","nghia":"Chăm Lo"},{"stt":1197,"hantu":"著急","pinyin":"zhāojí","nghia":"Sốt Ruột, Lo Lắng, Cuống Cuồng"},{"stt":1198,"hantu":"照片","pinyin":"Zhàopiàn","nghia":"Tấm Ảnh, Bức Ảnh, Tấm Hình"},{"stt":1199,"hantu":"照相","pinyin":"zhàoxiàng","nghia":"Máy Ảnh, Chụp Ảnh"},{"stt":1200,"hantu":"照相機","pinyin":"zhàoxiàngjī","nghia":"Máy Ảnh"},{"stt":1201,"hantu":"著","pinyin":"zhe","nghia":"Đang,"},{"stt":1202,"hantu":"這","pinyin":"zhè","nghia":"Đây, Này"},{"stt":1203,"hantu":"這個","pinyin":"zhè ge","nghia":"Cái Này, Việc Này, Vật Này"},{"stt":1204,"hantu":"這裡","pinyin":"zhèlǐ","nghia":"Ở Đây"},{"stt":1205,"hantu":"這麼","pinyin":"zhème","nghia":"Như Thế, Như Vậy, Thế Này"},{"stt":1206,"hantu":"真","pinyin":"zhēn","nghia":"Thực"},{"stt":1207,"hantu":"真的","pinyin":"zhēn de","nghia":"Thực Sự"},{"stt":1208,"hantu":"整天","pinyin":"zhěng tiān","nghia":"Cả Ngày, Toàn Bộ Một Ngày"},{"stt":1209,"hantu":"整理","pinyin":"zhěnglǐ","nghia":"Ngăn Nắp, Chỉnh Lý"},{"stt":1210,"hantu":"正在","pinyin":"zhèngzài","nghia":"Đang, Hiện Đang"},{"stt":1211,"hantu":"這些","pinyin":"zhèxiē","nghia":"Những ... Này"},{"stt":1212,"hantu":"這樣","pinyin":"zhèyàng","nghia":"Như Vậy, Như Thế, Thế Này"},{"stt":1213,"hantu":"紙","pinyin":"zhǐ","nghia":"Giấy,Tờ, Trang"},{"stt":1214,"hantu":"隻","pinyin":"Zhǐ","nghia":"Một, Con, Chỉ Số Lượng Con Vật"},{"stt":1215,"hantu":"只","pinyin":"zhǐ","nghia":"Chỉ Một, Cái, Chiếc, Đôi, Cặp"},{"stt":1216,"hantu":"枝","pinyin":"zhī","nghia":"Chi Nhánh, Cây, Cái (Dùng Cho Vật Có Hình Cán Dài)"},{"stt":1217,"hantu":"知道","pinyin":"zhī dào","nghia":"Biết, Hiểu, Rõ"},{"stt":1218,"hantu":"只好","pinyin":"zhǐhăo","nghia":"Đành Phải, Buộc Lòng Phải"},{"stt":1219,"hantu":"之後","pinyin":"zhīhòu","nghia":"Sau Đó"},{"stt":1220,"hantu":"智慧","pinyin":"zhìhuì","nghia":"Trí Tuệ, Trí Khôn, Thông Minh, Sáng Suốt"},{"stt":1221,"hantu":"直接","pinyin":"zhíjiē","nghia":"Trực Tiếp"},{"stt":1222,"hantu":"職業","pinyin":"zhíyè","nghia":"Nghề Nghiệp"},{"stt":1223,"hantu":"只有","pinyin":"Zhǐyǒu","nghia":"Chỉ Có"},{"stt":1224,"hantu":"重","pinyin":"zhòng","nghia":"Nặng, Trọng"},{"stt":1225,"hantu":"種","pinyin":"zhǒng","nghia":"Loại, Chủng Loại"},{"stt":1226,"hantu":"中國","pinyin":"zhōngguó","nghia":"Trung Quốc"},{"stt":1227,"hantu":"中華","pinyin":"zhōnghuá","nghia":"Trung Hoa"},{"stt":1228,"hantu":"中間","pinyin":"Zhōngjiān","nghia":"Ở Giữa, Trung Gian"},{"stt":1229,"hantu":"重視","pinyin":"zhòngshì","nghia":"Chú Trọng"},{"stt":1230,"hantu":"鐘頭","pinyin":"zhōngtóu","nghia":"Giờ Dong Ho"},{"stt":1231,"hantu":"中文","pinyin":"zhōngwén","nghia":"Trung Văn, Tiếng Trung"},{"stt":1232,"hantu":"中午","pinyin":"zhōngwǔ","nghia":"Buổi Trưa"},{"stt":1233,"hantu":"中心","pinyin":"zhōngxīn","nghia":"Trung Tâm"},{"stt":1234,"hantu":"重要","pinyin":"zhòngyào","nghia":"Quan Trọng"},{"stt":1235,"hantu":"週末","pinyin":"zhōumò","nghia":"Ngày Cuối Tuần"},{"stt":1236,"hantu":"祝","pinyin":"zhù","nghia":"Chúc, Cầu Chúc"},{"stt":1237,"hantu":"住","pinyin":"zhù","nghia":"Ở, Cư Trú, Trọ"},{"stt":1238,"hantu":"煮","pinyin":"zhǔ","nghia":"Nấu, Đun, Luộc"},{"stt":1239,"hantu":"豬","pinyin":"zhū","nghia":"Con Lợn"},{"stt":1240,"hantu":"煮菜","pinyin":"zhǔ cài","nghia":"Nấu Nướng"},{"stt":1241,"hantu":"賺","pinyin":"zhuàn","nghia":"Kiếm Tiền"},{"stt":1242,"hantu":"轉","pinyin":"zhuǎn","nghia":"Chuyển"},{"stt":1243,"hantu":"裝","pinyin":"zhuāng","nghia":"Trang Điểm, Hoá Trang, Đóng Gói, Lắp Ráp, Lắp Đặt"},{"stt":1244,"hantu":"追","pinyin":"zhuī","nghia":"Đuổi, Đuổi Bắt"},{"stt":1245,"hantu":"準備","pinyin":"Zhǔnbèi","nghia":"Chuẩn Bị"},{"stt":1246,"hantu":"準時","pinyin":"zhǔnshí","nghia":"Kịp Thời, Đúng Giờ"},{"stt":1247,"hantu":"桌（子）","pinyin":"zhuō（ zi）","nghia":"Bàn, Cái Bàn"},{"stt":1248,"hantu":"豬肉","pinyin":"Zhūròu","nghia":"Thịt Lợn"},{"stt":1249,"hantu":"注意","pinyin":"zhùyì","nghia":"Để Ý, Chú Ý"},{"stt":1250,"hantu":"主軸","pinyin":"zhǔzhóu","nghia":"Trục Chính"},{"stt":1251,"hantu":"字","pinyin":"zì","nghia":"Tự, Từ, Chữ, Chữ Viết, Văn Tự"},{"stt":1252,"hantu":"字典","pinyin":"zìdiǎn","nghia":"Từ Điển"},{"stt":1253,"hantu":"自己","pinyin":"zìjǐ","nghia":"Tự Mình"},{"stt":1254,"hantu":"自然","pinyin":"Zìrán","nghia":"Tự Nhiên"},{"stt":1255,"hantu":"自由","pinyin":"zìyóu","nghia":"Tự Do"},{"stt":1256,"hantu":"總","pinyin":"zǒng","nghia":"Tổng, Toàn Bộ, Toàn Diện"},{"stt":1257,"hantu":"總共","pinyin":"zǒnggòng","nghia":"Tổng Cộng"},{"stt":1258,"hantu":"總是","pinyin":"zǒngshì","nghia":"Luôn Luôn, Lúc Nào Cũng, Bao Giờ Cũng"},{"stt":1259,"hantu":"總統","pinyin":"zǒngtǒng","nghia":"Tổng Thống"},{"stt":1260,"hantu":"走","pinyin":"zǒu","nghia":"Đi Bộ"},{"stt":1261,"hantu":"走路","pinyin":"zǒulù","nghia":"Đi, Đi Đường, Đi Bộ"},{"stt":1262,"hantu":"租","pinyin":"zū","nghia":"Thuê"},{"stt":1263,"hantu":"最","pinyin":"zuì","nghia":"Nhất, Đứng Đầu, Nhất"},{"stt":1264,"hantu":"嘴巴","pinyin":"zuǐbā","nghia":"Miệng, Mồm"},{"stt":1265,"hantu":"最近","pinyin":"zuìjìn","nghia":"Gần Đây, Mới Đây, Vừa Qua"},{"stt":1266,"hantu":"尊敬","pinyin":"zūnjìng","nghia":"Sự Tôn Trọng"},{"stt":1267,"hantu":"坐","pinyin":"zuò","nghia":"Ngồi"},{"stt":1268,"hantu":"做","pinyin":"zuò","nghia":"Làm"},{"stt":1269,"hantu":"座","pinyin":"Zuò","nghia":"Chỗ Ngồi,"},{"stt":1270,"hantu":"左","pinyin":"zuǒ","nghia":"Tả: Bên Trái"},{"stt":1271,"hantu":"做菜","pinyin":"zuò cài","nghia":"Nấu Ăn"},{"stt":1272,"hantu":"左(邊)","pinyin":"zuǒ（ biān）","nghia":"Bên Trái"},{"stt":1273,"hantu":"昨天","pinyin":"zuótiān","nghia":"Hôm Qua"},{"stt":1274,"hantu":"做完","pinyin":"zuòwán","nghia":"Làm Xong"},{"stt":1275,"hantu":"作業","pinyin":"zuòyè","nghia":"Bài Tập"},{"stt":1276,"hantu":"足球","pinyin":"Zúqiú","nghia":"Bóng Đá"}];
+
+// ── Progress schema per word:
+// { seen, remembered(true/false/null), quizWrong, listenWrong, quizRetryIn, lqRetryIn }
+// quizRetryIn / lqRetryIn: how many questions until we re-ask this word (countdown)
+
+let progress = {};
+let quizStats = { correct: 0, total: 0, lqCorrect: 0, lqTotal: 0 };
+
+function loadProgress() {
+  try {
+    const s = localStorage.getItem('hv2_progress'); if(s) progress = JSON.parse(s);
+    const q = localStorage.getItem('hv2_quizstats'); if(q) quizStats = JSON.parse(q);
+  } catch(e) { progress={}; }
+}
+function saveProgress() {
+  try {
+    localStorage.setItem('hv2_progress', JSON.stringify(progress));
+    localStorage.setItem('hv2_quizstats', JSON.stringify(quizStats));
+  } catch(e) {}
+}
+function getP(id) {
+  if (!progress[id]) progress[id] = { seen:false, remembered:null, quizWrong:false, listenWrong:false, quizRetryIn:0, lqRetryIn:0 };
+  return progress[id];
+}
+
+// ── DECK STATE ──
+let deck = [];
+let currentIndex = 0;
+let currentMode = 'flashcard';
+let currentFilter = 'active';
+let isFlipped = false;
+
+// ── QUIZ FLIP ──
+let quizCardFlipped = false;
+function flipQuizCard() {
+  const card = document.getElementById('quizCard3d');
+  if (!card) return;
+  quizCardFlipped = !quizCardFlipped;
+  card.classList.toggle('quiz-flipped', quizCardFlipped);
+}
+
+// ── QUIZ STATE ──
+let quizDeck = [];       // ordered list of words to quiz (excludes remembered)
+let quizIdx = 0;
+let quizRetryQueue = []; // { wordStt, insertAt } items to reinsert
+let quizAnswered = false;
+let quizCorrectIdx = -1;
+let quizCurrentWord = null;
+let quizSessionCorrect = 0;
+let quizSessionTotal = 0;
+
+// ── LISTEN QUIZ STATE ──
+let lqDeck = [];
+let lqIdx = 0;
+let lqRetryQueue = [];
+let lqAnswered = false;
+let lqCorrectIdx = -1;
+let lqCurrentWord = null;
+let lqSessionCorrect = 0;
+let lqSessionTotal = 0;
+
+// ── FILTER LOGIC ──
+// "active" = not remembered (null or false) AND seen or wrong — basically everything except "remembered"
+// We NEVER show remembered words in flashcard/quiz/listen-quiz unless filter is explicitly "remembered" or "all"
+function buildDeck() {
+  // Tick down retry queues for quiz and lq before rebuilding
+  deck = filterWords(currentFilter);
+  currentIndex = 0;
+}
+
+function filterWords(f) {
+  switch(f) {
+    case 'active':    return VOCAB.filter(w => getP(w.stt).remembered !== true);
+    case 'unlearned': return VOCAB.filter(w => !getP(w.stt).seen);
+    case 'wrong':     return VOCAB.filter(w => getP(w.stt).quizWrong || getP(w.stt).listenWrong);
+    case 'remembered':return VOCAB.filter(w => getP(w.stt).remembered === true);
+    case 'all':       return [...VOCAB];
+  }
+  return [...VOCAB];
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('filter-' + f).classList.add('active');
+  buildDeck();
+  isFlipped = false;
+  updateStats();
+  if (currentMode === 'flashcard' || currentMode === 'listen') renderCurrent();
+  if (currentMode === 'quiz') initQuizDeck();
+  if (currentMode === 'listen-quiz') initLQDeck();
+}
+
+// ── STATS ──
+function updateStats() {
+  const total = VOCAB.length;
+  const rem = VOCAB.filter(w => getP(w.stt).remembered === true).length;
+  const forgot = VOCAB.filter(w => getP(w.stt).quizWrong || getP(w.stt).listenWrong).length;
+  const unseen = VOCAB.filter(w => !getP(w.stt).seen).length;
+  const tot = quizStats.total + quizStats.lqTotal;
+  const cor = quizStats.correct + quizStats.lqCorrect;
+  const acc = tot > 0 ? Math.round(cor / tot * 100) : 0;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-remembered').textContent = rem;
+  document.getElementById('stat-forgot').textContent = forgot;
+  document.getElementById('stat-unseen').textContent = unseen;
+  document.getElementById('stat-acc').textContent = acc + '%';
+}
+
+// ── HAN VIET EXTRACT ──
+function extractHanViet(nghia) {
+  const i = nghia.indexOf(':');
+  if (i > 0 && i < 15) return nghia.substring(0, i).trim();
+  return '';
+}
+
+// ── FLASHCARD RENDER ──
+function renderCurrent() {
+  const section = currentMode === 'flashcard' ? 'flashcard-section' : 'listen-section';
+  if (deck.length === 0) { renderEmpty(section); return; }
+  const w = deck[currentIndex];
+  const p = getP(w.stt);
+  p.seen = true; saveProgress();
+
+  const hanViet = extractHanViet(w.nghia);
+  const meaning = hanViet ? w.nghia.substring(w.nghia.indexOf(':') + 1).trim() : w.nghia;
+
+  if (currentMode === 'flashcard') {
+    // Restore card HTML if it was replaced by empty state
+    ensureCardHTML();
+    document.getElementById('card-hanzi').textContent = w.hantu;
+    document.getElementById('card-pinyin').textContent = w.pinyin;
+    document.getElementById('card-meaning').textContent = meaning || w.nghia;
+    document.getElementById('card-hanviet').textContent = hanViet ? '漢越: ' + hanViet : '';
+    document.getElementById('card-num').textContent = (currentIndex + 1) + ' / ' + deck.length;
+
+    const badge = document.getElementById('card-badge');
+    if (p.remembered === true) { badge.textContent = '✓ Đã nhớ'; badge.className = 'card-status-badge remembered'; badge.style.display = ''; }
+    else if (p.remembered === false || p.quizWrong) { badge.textContent = '✗ Chưa nhớ'; badge.className = 'card-status-badge forgot'; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+
+    const pct = deck.length > 0 ? ((currentIndex+1)/deck.length*100).toFixed(0) : 0;
+    document.getElementById('fc-progress-fill').style.width = pct + '%';
+    document.getElementById('fc-progress-text').textContent = (currentIndex+1) + ' / ' + deck.length;
+    document.getElementById('btn-fc-remembered').classList.toggle('selected', p.remembered === true);
+    document.getElementById('btn-fc-forgot').classList.toggle('selected', p.remembered === false);
+    document.getElementById('card3d').classList.toggle('flipped', isFlipped);
+    document.getElementById('btn-prev').disabled = currentIndex <= 0;
+    document.getElementById('btn-next').disabled = currentIndex >= deck.length - 1;
+
+  } else if (currentMode === 'listen') {
+    document.getElementById('listen-hanzi').textContent = w.hantu;
+    document.getElementById('listen-pinyin').textContent = w.pinyin;
+    document.getElementById('listen-meaning').textContent = w.nghia;
+    document.getElementById('listen-meaning').classList.remove('visible');
+    const pct = deck.length > 0 ? ((currentIndex+1)/deck.length*100).toFixed(0) : 0;
+    document.getElementById('ls-progress-fill').style.width = pct + '%';
+    document.getElementById('ls-progress-text').textContent = (currentIndex+1) + ' / ' + deck.length;
+    isFlipped = false;
+  }
+}
+
+let cardHTMLSaved = '';
+function ensureCardHTML() {
+  const scene = document.querySelector('.card-scene');
+  if (!document.getElementById('card3d')) {
+    scene.innerHTML = cardHTMLSaved;
+  }
+}
+
+function renderEmpty(sectionId) {
+  const map = {
+    'flashcard-section': () => {
+      const scene = document.querySelector('#flashcard-section .card-scene');
+      if (!cardHTMLSaved && document.getElementById('card3d')) cardHTMLSaved = scene.innerHTML;
+      scene.innerHTML = `<div class="empty-state"><div class="big">🎉</div><p>Không có từ nào trong bộ lọc này.<br>Thử bộ lọc khác hoặc nhấn "Làm lại".</p><button class="empty-action" onclick="confirmResetAll()">⚠️ Làm lại từ đầu</button></div>`;
+      document.getElementById('fc-progress-text').textContent = '0 / 0';
+      document.getElementById('fc-progress-fill').style.width = '0%';
+    }
+  };
+  if (map[sectionId]) map[sectionId]();
+}
+
+function flipCard() {
+  if (!document.getElementById('card3d')) return;
+  isFlipped = !isFlipped;
+  document.getElementById('card3d').classList.toggle('flipped', isFlipped);
+}
+
+function markCard(remembered) {
+  if (deck.length === 0) return;
+  const w = deck[currentIndex];
+  const p = getP(w.stt);
+  p.remembered = remembered;
+  if (remembered) { p.quizWrong = false; p.listenWrong = false; }
+  saveProgress(); updateStats(); renderCurrent();
+  showToast(remembered ? '✅ Đã nhớ!' : '❌ Chưa nhớ');
+  // If marking remembered and filter hides remembered words → skip ahead
+  if (remembered && currentFilter === 'active') {
+    deck = filterWords(currentFilter);
+    currentIndex = Math.min(currentIndex, deck.length - 1);
+    if (deck.length === 0) { renderEmpty('flashcard-section'); return; }
+    renderCurrent();
+    return;
+  }
+  if (currentIndex < deck.length - 1) setTimeout(() => navigate(1), 380);
+}
+
+function navigate(dir) {
+  currentIndex = Math.max(0, Math.min(deck.length - 1, currentIndex + dir));
+  isFlipped = false;
+  renderCurrent();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+  currentIndex = 0; isFlipped = false; renderCurrent();
+  if (currentMode==='quiz') { quizDeck=[...deck]; quizIdx=0; quizRetryQueue=[]; startQuizCard(); }
+  if (currentMode==='listen-quiz') { lqDeck=[...deck]; lqIdx=0; lqRetryQueue=[]; startLQCard(); }
+  showToast('🔀 Đã xáo bài!');
+}
+
+function resetCurrentDeck() {
+  buildDeck(); isFlipped=false; renderCurrent(); showToast('🔄 Về từ đầu!');
+}
+
+// ── RESET ALL ──
+function confirmResetAll() { document.getElementById('confirm-modal').classList.add('show'); }
+function closeConfirm() { document.getElementById('confirm-modal').classList.remove('show'); }
+function doResetAll() {
+  progress = {}; quizStats = { correct:0, total:0, lqCorrect:0, lqTotal:0 };
+  saveProgress(); closeConfirm();
+  buildDeck(); updateStats();
+  if (currentMode==='flashcard'||currentMode==='listen') renderCurrent();
+  if (currentMode==='quiz') initQuizDeck();
+  if (currentMode==='listen-quiz') initLQDeck();
+  showToast('🔄 Đã xóa tiến độ!');
+}
+
+// ══════════════════════════════════════════════
+//  QUIZ MODE
+// ══════════════════════════════════════════════
+// Rules:
+// - remembered words are EXCLUDED from quizDeck
+// - wrong answers: word re-queued after 10 questions
+// - marking ✓ remembered → skip in future (until reset)
+// - marking ✗ → keep in deck, tag quizWrong
+
+function initQuizDeck() {
+  document.getElementById('quiz-inner').style.display = '';
+  document.getElementById('quiz-complete').style.display = 'none';
+  quizDeck = filterWords(currentFilter).filter(w => getP(w.stt).remembered !== true);
+  // Shuffle
+  for (let i=quizDeck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[quizDeck[i],quizDeck[j]]=[quizDeck[j],quizDeck[i]];}
+  quizIdx = 0; quizRetryQueue = [];
+  quizSessionCorrect = 0; quizSessionTotal = 0;
+  if (quizDeck.length === 0) { showQuizEmpty(); return; }
+  startQuizCard();
+}
+
+function showQuizEmpty() {
+  document.getElementById('quiz-inner').style.display = 'none';
+  document.getElementById('quiz-complete').style.display = '';
+  const rem = VOCAB.filter(w => getP(w.stt).remembered === true).length;
+  document.getElementById('quiz-complete-msg').innerHTML =
+    `Không còn từ nào để ôn trong bộ lọc này.<br>✅ Đã nhớ: <b>${rem}</b> từ · ${quizStats.total} câu đã làm`;
+}
+
+function injectRetries() {
+  // Insert words whose countdown has reached 0 at current position
+  quizRetryQueue = quizRetryQueue.filter(r => {
+    if (r.insertAt <= quizIdx) {
+      quizDeck.splice(quizIdx, 0, r.word);
+      return false;
+    }
+    return true;
+  });
+}
+
+function startQuizCard() {
+  injectRetries();
+  if (quizIdx >= quizDeck.length) { showQuizComplete(); return; }
+  const w = quizDeck[quizIdx];
+  quizCurrentWord = w;
+  quizAnswered = false;
+
+  // Reset flip state
+  quizCardFlipped = false;
+  const card3d = document.getElementById('quizCard3d');
+  if (card3d) card3d.classList.remove('quiz-flipped');
+
+  const p = getP(w.stt);
+  p.seen = true; saveProgress();
+
+  const isRetry = p._quizIsRetry || false;
+  const retryBadge = document.getElementById('quiz-retry-badge-card');
+  if (retryBadge) retryBadge.style.display = isRetry ? '' : 'none';
+
+  // Extract han viet
+  const hanViet = extractHanViet(w.nghia);
+  const meaning = hanViet ? w.nghia.substring(w.nghia.indexOf(':') + 1).trim() : w.nghia;
+
+  document.getElementById('quiz-hanzi-card').textContent = w.hantu;
+  document.getElementById('quiz-pinyin-card').textContent = w.pinyin;
+  document.getElementById('quiz-meaning-card').textContent = meaning || w.nghia;
+  const hvEl = document.getElementById('quiz-hanviet-card');
+  if (hvEl) hvEl.textContent = hanViet ? '漢越: ' + hanViet : '';
+
+  document.getElementById('quiz-counter').textContent = (quizIdx+1) + ' / ' + quizDeck.length;
+  document.getElementById('quiz-result').className = 'quiz-result-msg';
+  document.getElementById('quiz-after-row').style.display = 'none';
+
+  const pct = quizDeck.length > 0 ? ((quizIdx+1)/quizDeck.length*100).toFixed(0) : 0;
+  document.getElementById('qz-progress-fill').style.width = pct + '%';
+  document.getElementById('qz-progress-text').textContent = (quizIdx+1) + ' / ' + quizDeck.length;
+
+  // Build 4 options
+  const correct = w;
+  let pool = VOCAB.filter(v => v.stt !== w.stt);
+  for (let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  const opts = [correct, pool[0], pool[1], pool[2]];
+  for (let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  quizCorrectIdx = opts.findIndex(o => o.stt === correct.stt);
+
+  const container = document.getElementById('quiz-options');
+  container.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt.nghia;
+    btn.onclick = () => answerQuiz(i, btn);
+    container.appendChild(btn);
+  });
+}
+
+function answerQuiz(idx, btn) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const w = quizCurrentWord;
+  const allOpts = document.querySelectorAll('#quiz-options .quiz-option');
+  allOpts.forEach(b => b.classList.add('disabled'));
+  allOpts[quizCorrectIdx].classList.add('correct');
+  quizStats.total++; quizSessionTotal++;
+
+  const resultEl = document.getElementById('quiz-result');
+  if (idx === quizCorrectIdx) {
+    quizStats.correct++; quizSessionCorrect++;
+    resultEl.textContent = '🎉 Chính xác!';
+    resultEl.className = 'quiz-result-msg correct show';
+    // Clear wrong flag only if user explicitly marks OK
+  } else {
+    btn.classList.add('wrong');
+    resultEl.textContent = '❌ Sai! Đáp án: ' + w.nghia;
+    resultEl.className = 'quiz-result-msg wrong show';
+    getP(w.stt).quizWrong = true;
+    // Schedule retry after 10 questions
+    quizRetryQueue.push({ word: w, insertAt: quizIdx + 10 });
+    getP(w.stt)._quizIsRetry = true;
+  }
+  saveProgress(); updateStats();
+  document.getElementById('quiz-after-row').style.display = 'flex';
+}
+
+function quizMarkStatus(remembered) {
+  const p = getP(quizCurrentWord.stt);
+  p.remembered = remembered;
+  if (remembered) {
+    p.quizWrong = false; p._quizIsRetry = false;
+    // Remove from retry queue if present
+    quizRetryQueue = quizRetryQueue.filter(r => r.word.stt !== quizCurrentWord.stt);
+    // Remove future occurrences from quizDeck
+    const future = quizDeck.slice(quizIdx+1);
+    const filtered = future.filter(w => w.stt !== quizCurrentWord.stt);
+    quizDeck = [...quizDeck.slice(0, quizIdx+1), ...filtered];
+    showToast('✅ Đánh dấu đã nhớ — sẽ không hỏi lại!');
+  } else {
+    p.quizWrong = true;
+    showToast('❌ Đánh dấu chưa nhớ');
+  }
+  saveProgress(); updateStats();
+  nextQuiz();
+}
+
+function nextQuiz() {
+  quizIdx++;
+  injectRetries();
+  if (quizIdx >= quizDeck.length) { showQuizComplete(); return; }
+  startQuizCard();
+}
+
+function showQuizComplete() {
+  document.getElementById('quiz-inner').style.display = 'none';
+  document.getElementById('quiz-complete').style.display = '';
+  const wrongCount = VOCAB.filter(w => getP(w.stt).quizWrong).length;
+  const remCount = VOCAB.filter(w => getP(w.stt).remembered === true).length;
+  const acc = quizSessionTotal > 0 ? Math.round(quizSessionCorrect/quizSessionTotal*100) : 0;
+  document.getElementById('quiz-complete-msg').innerHTML =
+    `Phiên này: <b>${quizSessionCorrect}/${quizSessionTotal}</b> câu đúng (${acc}%)<br>
+     ✅ Đã nhớ: <b>${remCount}</b> từ &nbsp;·&nbsp; ❌ Còn sai: <b>${wrongCount}</b> từ`;
+}
+
+function restartQuiz() {
+  document.getElementById('quiz-inner').style.display = '';
+  document.getElementById('quiz-complete').style.display = 'none';
+  initQuizDeck();
+}
+
+// ══════════════════════════════════════════════
+//  LISTEN QUIZ MODE
+// ══════════════════════════════════════════════
+function initLQDeck() {
+  document.getElementById('listen-quiz-inner').style.display = '';
+  document.getElementById('lq-complete').style.display = 'none';
+  lqDeck = filterWords(currentFilter).filter(w => getP(w.stt).remembered !== true);
+  for (let i=lqDeck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lqDeck[i],lqDeck[j]]=[lqDeck[j],lqDeck[i]];}
+  lqIdx = 0; lqRetryQueue = [];
+  lqSessionCorrect = 0; lqSessionTotal = 0;
+  if (lqDeck.length === 0) { showLQEmpty(); return; }
+  startLQCard();
+}
+
+function showLQEmpty() {
+  document.getElementById('listen-quiz-inner').style.display = 'none';
+  document.getElementById('lq-complete').style.display = '';
+  document.getElementById('lq-complete-msg').innerHTML = 'Không còn từ nào để ôn.<br>Thử bộ lọc "Tất cả" hoặc làm lại từ đầu.';
+}
+
+function injectLQRetries() {
+  lqRetryQueue = lqRetryQueue.filter(r => {
+    if (r.insertAt <= lqIdx) { lqDeck.splice(lqIdx, 0, r.word); return false; }
+    return true;
+  });
+}
+
+function startLQCard() {
+  injectLQRetries();
+  if (lqIdx >= lqDeck.length) { showLQComplete(); return; }
+  const w = lqDeck[lqIdx];
+  lqCurrentWord = w;
+  lqAnswered = false;
+
+  const p = getP(w.stt);
+  p.seen = true; saveProgress();
+
+  document.getElementById('lq-retry-badge').style.display = (p._lqIsRetry) ? '' : 'none';
+  document.getElementById('lq-counter').textContent = (lqIdx+1) + ' / ' + lqDeck.length;
+  document.getElementById('lq-result').className = 'quiz-result-msg';
+  document.getElementById('lq-after-row').style.display = 'none';
+  document.getElementById('lq-speak-btn').className = 'lq-speak-btn';
+  document.getElementById('lq-speak-btn').textContent = '🔊';
+
+  const pct = lqDeck.length > 0 ? ((lqIdx+1)/lqDeck.length*100).toFixed(0) : 0;
+  document.getElementById('lq-progress-fill').style.width = pct + '%';
+  document.getElementById('lq-progress-text').textContent = (lqIdx+1) + ' / ' + lqDeck.length;
+
+  const correct = w;
+  let pool = VOCAB.filter(v => v.stt !== w.stt);
+  for (let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  const opts = [correct, pool[0], pool[1], pool[2]];
+  for (let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  lqCorrectIdx = opts.findIndex(o => o.stt === correct.stt);
+
+  const container = document.getElementById('lq-options');
+  container.innerHTML = '';
+  // Show hanzi + meaning as options (not pinyin, to avoid giving it away)
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = `<span style="font-family:'Noto Serif SC',serif;font-size:15px;color:var(--gold-light)">${opt.hantu}</span><br><span style="font-size:11px;color:var(--muted)">${opt.nghia}</span>`;
+    btn.onclick = () => answerLQ(i, btn);
+    container.appendChild(btn);
+  });
+
+  // Auto-speak after short delay
+  setTimeout(lqSpeak, 400);
+}
+
+function lqSpeak() {
+  if (!lqCurrentWord) return;
+  if (!('speechSynthesis' in window)) { showToast('⚠️ Trình duyệt không hỗ trợ TTS'); return; }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(lqCurrentWord.hantu);
+  utt.lang = 'zh-TW'; utt.rate = 0.85; utt.pitch = 1;
+  const btn = document.getElementById('lq-speak-btn');
+  btn.classList.add('speaking'); btn.textContent = '⏹';
+  utt.onend = () => { btn.classList.remove('speaking'); btn.textContent = '🔊'; };
+  utt.onerror = () => { btn.classList.remove('speaking'); btn.textContent = '🔊'; };
+  window.speechSynthesis.speak(utt);
+}
+
+function answerLQ(idx, btn) {
+  if (lqAnswered) return;
+  lqAnswered = true;
+  const w = lqCurrentWord;
+  const allOpts = document.querySelectorAll('#lq-options .quiz-option');
+  allOpts.forEach(b => b.classList.add('disabled'));
+  allOpts[lqCorrectIdx].classList.add('correct');
+  quizStats.lqTotal++; lqSessionTotal++;
+
+  const resultEl = document.getElementById('lq-result');
+  if (idx === lqCorrectIdx) {
+    quizStats.lqCorrect++; lqSessionCorrect++;
+    resultEl.textContent = '🎉 Chính xác!';
+    resultEl.className = 'quiz-result-msg correct show';
+  } else {
+    btn.classList.add('wrong');
+    resultEl.textContent = '❌ Sai! Chữ đó là: ' + w.hantu + ' · ' + w.nghia;
+    resultEl.className = 'quiz-result-msg wrong show';
+    getP(w.stt).listenWrong = true;
+    lqRetryQueue.push({ word: w, insertAt: lqIdx + 10 });
+    getP(w.stt)._lqIsRetry = true;
+  }
+  saveProgress(); updateStats();
+  document.getElementById('lq-after-row').style.display = 'flex';
+}
+
+function lqMarkStatus(remembered) {
+  const p = getP(lqCurrentWord.stt);
+  p.remembered = remembered;
+  if (remembered) {
+    p.listenWrong = false; p.quizWrong = false; p._lqIsRetry = false;
+    lqRetryQueue = lqRetryQueue.filter(r => r.word.stt !== lqCurrentWord.stt);
+    const future = lqDeck.slice(lqIdx+1).filter(w => w.stt !== lqCurrentWord.stt);
+    lqDeck = [...lqDeck.slice(0, lqIdx+1), ...future];
+    showToast('✅ Đánh dấu đã nhớ — sẽ không hỏi lại!');
+  } else {
+    p.listenWrong = true;
+    showToast('❌ Đánh dấu chưa nhớ');
+  }
+  saveProgress(); updateStats();
+  nextLQ();
+}
+
+function nextLQ() {
+  lqIdx++;
+  injectLQRetries();
+  if (lqIdx >= lqDeck.length) { showLQComplete(); return; }
+  startLQCard();
+}
+
+function showLQComplete() {
+  document.getElementById('listen-quiz-inner').style.display = 'none';
+  document.getElementById('lq-complete').style.display = '';
+  const wrongCount = VOCAB.filter(w => getP(w.stt).listenWrong).length;
+  const remCount = VOCAB.filter(w => getP(w.stt).remembered === true).length;
+  const acc = lqSessionTotal > 0 ? Math.round(lqSessionCorrect/lqSessionTotal*100) : 0;
+  document.getElementById('lq-complete-msg').innerHTML =
+    `Phiên này: <b>${lqSessionCorrect}/${lqSessionTotal}</b> câu đúng (${acc}%)<br>
+     ✅ Đã nhớ: <b>${remCount}</b> từ &nbsp;·&nbsp; ❌ Còn sai: <b>${wrongCount}</b> từ`;
+}
+
+function restartLQ() {
+  document.getElementById('listen-quiz-inner').style.display = '';
+  document.getElementById('lq-complete').style.display = 'none';
+  initLQDeck();
+}
+
+// ── LISTEN STUDY ──
+function speakCurrent() {
+  if (deck.length === 0) return;
+  const w = deck[currentIndex];
+  if (!('speechSynthesis' in window)) { showToast('⚠️ Không hỗ trợ TTS'); return; }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(w.hantu);
+  utt.lang = 'zh-TW'; utt.rate = 0.85;
+  const btn = document.getElementById('speak-btn');
+  btn.classList.add('speaking'); btn.textContent = '⏹';
+  utt.onend = () => { btn.classList.remove('speaking'); btn.textContent = '🔊'; };
+  utt.onerror = () => { btn.classList.remove('speaking'); btn.textContent = '🔊'; };
+  window.speechSynthesis.speak(utt);
+}
+
+function revealListen() {
+  document.getElementById('listen-meaning').classList.add('visible');
+}
+
+// ── MODE SWITCH ──
+function switchMode(mode) {
+  currentMode = mode;
+  const all = ['flashcard','quiz','listen-quiz','listen'];
+  all.forEach(m => {
+    document.getElementById(m + '-section').style.display = m === mode ? '' : 'none';
+    document.getElementById('tab-' + m).classList.toggle('active', m === mode);
+  });
+  buildDeck();
+  isFlipped = false;
+  if (mode === 'flashcard' || mode === 'listen') renderCurrent();
+  if (mode === 'quiz') initQuizDeck();
+  if (mode === 'listen-quiz') initLQDeck();
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (currentMode === 'flashcard') {
+    if (e.key==='ArrowRight'||e.key==='d') navigate(1);
+    if (e.key==='ArrowLeft'||e.key==='a') navigate(-1);
+    if (e.key===' ') { e.preventDefault(); flipCard(); }
+    if (e.key==='r') markCard(true);
+    if (e.key==='f') markCard(false);
+  }
+  if (currentMode==='listen') {
+    if (e.key==='ArrowRight') navigate(1);
+    if (e.key==='ArrowLeft') navigate(-1);
+    if (e.key===' ') { e.preventDefault(); speakCurrent(); }
+    if (e.key==='v') revealListen();
+  }
+  if (currentMode==='quiz' && quizAnswered) {
+    if (e.key==='Enter'||e.key==='ArrowRight') nextQuiz();
+  }
+  if (currentMode==='listen-quiz' && lqAnswered) {
+    if (e.key==='Enter'||e.key==='ArrowRight') nextLQ();
+    if (e.key===' ') { e.preventDefault(); lqSpeak(); }
+  }
+});
+
+// ── SWIPE ──
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) {
+    if (currentMode==='flashcard'||currentMode==='listen') {
+      if (dx < 0) navigate(1); else navigate(-1);
+    }
+  }
+}, {passive:true});
+
+// ── INIT ──
+loadProgress();
+buildDeck();
+updateStats();
+renderCurrent();
+
+// Save card HTML template
+setTimeout(() => {
+  const scene = document.querySelector('#flashcard-section .card-scene');
+  if (scene && document.getElementById('card3d')) cardHTMLSaved = scene.innerHTML;
+}, 100);
+</script>
+</body>
+</html>
